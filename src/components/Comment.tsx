@@ -50,6 +50,8 @@ export default function Comment({ entry, target }: CommentProps) {
 
         <ScoreCounter
           score={score}
+          currentUserVote={entry.currentUserVote}
+          disabled={isAuthor}
           author={user.username}
           onVote={handleVote}
         />

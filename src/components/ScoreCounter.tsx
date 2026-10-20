@@ -1,14 +1,19 @@
 import { Button } from "@/components/ui/button";
+import type { Vote } from "@/models/comment.interface";
 import { cn } from "@/lib/utils";
 
 interface ScoreCounterProps {
   score: number;
+  currentUserVote: Vote;
+  disabled: boolean;
   author: string;
-  onVote: (delta: 1 | -1) => void;
+  onVote: (direction: 1 | -1) => void;
 }
 
 export default function ScoreCounter({
   score,
+  currentUserVote,
+  disabled,
   author,
   onVote,
 }: ScoreCounterProps) {
@@ -22,7 +27,10 @@ export default function ScoreCounter({
         variant="vote"
         size="icon"
         aria-label={`Upvote comment by ${author}`}
-        onClick={() => onVote(+1)}
+        aria-pressed={currentUserVote === 1}
+        disabled={disabled}
+        className={cn(currentUserVote === 1 && "text-blue-500")}
+        onClick={() => onVote(1)}
       >
         <svg className="size-2" aria-hidden="true">
           <use href="/icons.svg#plus"></use>
@@ -41,6 +49,9 @@ export default function ScoreCounter({
         variant="vote"
         size="icon"
         aria-label={`Downvote comment by ${author}`}
+        aria-pressed={currentUserVote === -1}
+        disabled={disabled}
+        className={cn(currentUserVote === -1 && "text-blue-500")}
         onClick={() => onVote(-1)}
       >
         <svg className="size-2" aria-hidden="true">

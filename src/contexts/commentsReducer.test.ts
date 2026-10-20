@@ -197,6 +197,43 @@ describe("delete", () => {
   });
 });
 
+describe("vote", () => {
+  const vote = (target: CommentTarget, direction: 1 | -1) =>
+    ({ type: "vote", payload: { target, direction } }) as const;
+  const scoreOf = (s: CommentsState, target: CommentTarget) => {
+    const entry = findEntry(s.comments, target);
+    return [entry?.score, entry?.currentUserVote];
+  };
+
+  it("adds, removes and replaces the current user's single vote", () => {
+    // Seed score of root "1" is 12.
+    expect(scoreOf(run(vote(ROOT_1, 1)), ROOT_1)).toEqual([13, 1]);
+    expect(scoreOf(run(vote(ROOT_1, 1), vote(ROOT_1, 1)), ROOT_1)).toEqual([
+      12, 0,
+    ]);
+    expect(scoreOf(run(vote(ROOT_1, 1), vote(ROOT_1, -1)), ROOT_1)).toEqual([
+      11, -1,
+    ]);
+    expect(scoreOf(run(vote(ROOT_1, -1), vote(ROOT_1, 1)), ROOT_1)).toEqual([
+      13, 1,
+    ]);
+    expect(scoreOf(run(vote(ROOT_1, -1), vote(ROOT_1, -1)), ROOT_1)).toEqual([
+      12, 0,
+    ]);
+  });
+
+  it("votes on replies without touching other entries", () => {
+    const next = run(vote(REPLY_3, 1));
+    expect(scoreOf(next, REPLY_3)).toEqual([5, 1]);
+    expect(scoreOf(next, ROOT_2)).toEqual(scoreOf(state, ROOT_2));
+  });
+
+  it("rejects votes on the current user's entries and missing targets", () => {
+    expect(run(vote(REPLY_4, 1))).toBe(state);
+    expect(run(vote({ kind: "comment", id: "x" }, 1))).toBe(state);
+  });
+});
+
 it("never mutates the previous state", () => {
   const snapshot = structuredClone(state);
   run(
@@ -209,7 +246,7 @@ it("never mutates the previous state", () => {
       payload: { target: REPLY_3, id: "b", content: "B", createdAt: "now" },
     },
     { type: "edit", payload: { target: REPLY_4, content: "Edited" } },
-    { type: "vote", payload: { target: ROOT_1, delta: 1 } },
+    { type: "vote", payload: { target: ROOT_1, direction: 1 } },
     { type: "delete", payload: { target: REPLY_4 } },
   );
   expect(state).toEqual(snapshot);

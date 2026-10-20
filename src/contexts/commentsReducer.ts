@@ -10,6 +10,7 @@ import {
   getThreadId,
   isAuthoredBy,
   isValidContent,
+  nextVote,
   normalizeContent,
 } from "@/utils/comment.utils";
 
@@ -44,10 +45,12 @@ export type CommentsAction =
     }
   | {
       type: "vote";
-      payload: { target: CommentTarget; delta: 1 | -1 };
+      payload: { target: CommentTarget; direction: 1 | -1 };
     };
 
-type EntryPatch = Partial<Pick<CommentEntry, "content" | "score">>;
+type EntryPatch = Partial<
+  Pick<CommentEntry, "content" | "score" | "currentUserVote">
+>;
 
 function patchEntry(
   comments: ThreadComment[],
@@ -162,14 +165,16 @@ export function commentsReducer(
       };
     }
     case "vote": {
-      const { target, delta } = action.payload;
+      const { target, direction } = action.payload;
       const entry = findEntry(state.comments, target);
-      if (!entry) return state;
+      if (!entry || isAuthoredBy(entry, state.currentUser)) return state;
 
+      const vote = nextVote(entry.currentUserVote, direction);
       return {
         ...state,
         comments: patchEntry(state.comments, target, {
-          score: entry.score + delta,
+          currentUserVote: vote,
+          score: entry.score - entry.currentUserVote + vote,
         }),
       };
     }

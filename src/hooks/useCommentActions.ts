@@ -12,8 +12,8 @@ export function useCommentActions(target: CommentTarget) {
 
   const resetMode = () => setMode("idle");
 
-  const handleVote = (delta: 1 | -1) =>
-    dispatch({ type: "vote", payload: { target, delta } });
+  const handleVote = (direction: 1 | -1) =>
+    dispatch({ type: "vote", payload: { target, direction } });
 
   const handleEdit = (content: string) => {
     dispatch({ type: "edit", payload: { target, content } });

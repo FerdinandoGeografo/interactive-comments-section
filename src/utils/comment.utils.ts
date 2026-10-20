@@ -2,6 +2,7 @@ import type {
   CommentEntry,
   CommentTarget,
   ThreadComment,
+  Vote,
 } from "@/models/comment.interface";
 import type { User } from "@/models/user.interface";
 
@@ -31,4 +32,9 @@ export function findEntry(
 
 export function isAuthoredBy(entry: CommentEntry, user: User) {
   return entry.user.username === user.username;
+}
+
+// Pressing the active vote removes it; the opposite vote replaces it.
+export function nextVote(current: Vote, direction: 1 | -1): Vote {
+  return current === direction ? 0 : direction;
 }
