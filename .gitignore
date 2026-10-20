@@ -24,3 +24,18 @@ dist-ssr
 *.sw?
 
 design/
+
+# Local AI instructions and context
+/AGENTS.md
+/AGENTS.override.md
+/CLAUDE.md
+/CLAUDE.local.md
+
+# Local AI documentation, skills and configuration
+/.ai/
+/.agents/
+/.claude/
+/.codex/
+
+# Agent skills installation metadata
+/skills-lock.json
