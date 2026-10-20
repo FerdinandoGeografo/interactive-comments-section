@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useComments } from "@/contexts/CommentsContext";
+import { useComments } from "@/hooks/useComments";
 import type { BaseComment } from "@/models/comment.interface";
 
 type CommentMode = "idle" | "edit" | "reply" | "delete";

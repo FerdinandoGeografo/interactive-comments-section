@@ -1,6 +1,6 @@
 import CreateCommentForm from "@/components/CreateCommentForm";
 import Comment from "@/components/Comment";
-import { useComments } from "@/contexts/CommentsContext";
+import { useComments } from "@/hooks/useComments";
 
 export default function App() {
   const { comments } = useComments();

@@ -1,17 +1,12 @@
-import { createContext, useContext, useReducer, type ReactNode } from "react";
-import {
-  COMMENTS,
-  type Comment,
-  type Reply,
-} from "@/models/comment.interface";
+import { COMMENTS, type Comment, type Reply } from "@/models/comment.interface";
 import { CURRENT_USER, type User } from "@/models/user.interface";
 
-interface CommentsState {
+export interface CommentsState {
   currentUser: User;
   comments: Comment[];
 }
 
-type CommentsAction =
+export type CommentsAction =
   | {
       type: "vote";
       payload: { id: number; parentId?: number; delta: 1 | -1 };
@@ -33,20 +28,15 @@ type CommentsAction =
       payload: { reply: Reply; parentId: number };
     };
 
-interface CommentsContextValue {
-  currentUser: User;
-  comments: Comment[];
-  dispatch: React.Dispatch<CommentsAction>;
-}
-
-const initialState: CommentsState = {
+export const initialState: CommentsState = {
   currentUser: CURRENT_USER,
   comments: COMMENTS,
 };
 
-const CommentsContext = createContext<CommentsContextValue | null>(null);
-
-function reducer(state: CommentsState, action: CommentsAction): CommentsState {
+export function commentsReducer(
+  state: CommentsState,
+  action: CommentsAction,
+): CommentsState {
   switch (action.type) {
     case "vote": {
       const { id, parentId, delta } = action.payload;
@@ -123,31 +113,3 @@ function reducer(state: CommentsState, action: CommentsAction): CommentsState {
       throw new Error("action type is unknown");
   }
 }
-
-function CommentsProvider({ children }: { children: ReactNode }) {
-  const [{ currentUser, comments }, dispatch] = useReducer(
-    reducer,
-    initialState,
-  );
-
-  return (
-    <CommentsContext.Provider
-      value={{
-        currentUser,
-        comments,
-        dispatch,
-      }}
-    >
-      {children}
-    </CommentsContext.Provider>
-  );
-}
-
-function useComments() {
-  const context = useContext(CommentsContext);
-  if (context === null)
-    throw new Error("CommentsContext was used outside the CommentsProvider");
-  return context;
-}
-
-export { CommentsProvider, useComments };

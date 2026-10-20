@@ -9,7 +9,7 @@ import CreateCommentForm from "@/components/CreateCommentForm";
 import ReplyList from "@/components/ReplyList";
 
 import { useCommentActions } from "@/hooks/useCommentActions";
-import { useComments } from "@/contexts/CommentsContext";
+import { useComments } from "@/hooks/useComments";
 import { isComment, isReply } from "@/utils/comment.utils";
 import DeleteCommentDialog from "@/components/DeleteCommentDialog";
 

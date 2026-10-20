@@ -3,7 +3,7 @@ import type { Comment, Reply } from "@/models/comment.interface";
 import Avatar from "@/components/Avatar";
 import Button from "@/components/Button";
 import CommentTextarea from "@/components/CommentTextarea";
-import { useComments } from "@/contexts/CommentsContext";
+import { useComments } from "@/hooks/useComments";
 
 interface CreateCommentFormProps {
   parentId?: number;
