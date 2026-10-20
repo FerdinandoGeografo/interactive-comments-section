@@ -1,5 +1,5 @@
-import type { User } from "../models/user.interface";
-import Avatar from "./Avatar";
+import type { User } from "@/models/user.interface";
+import Avatar from "@/components/Avatar";
 
 interface CommentHeaderProps {
   user: User;

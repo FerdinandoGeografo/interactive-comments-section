@@ -1,9 +1,9 @@
 import { useState } from "react";
-import type { Comment, Reply } from "../models/comment.interface";
-import Avatar from "./Avatar";
-import Button from "./Button";
-import CommentTextarea from "./CommentTextarea";
-import { useComments } from "../contexts/CommentsContext";
+import type { Comment, Reply } from "@/models/comment.interface";
+import Avatar from "@/components/Avatar";
+import Button from "@/components/Button";
+import CommentTextarea from "@/components/CommentTextarea";
+import { useComments } from "@/contexts/CommentsContext";
 
 interface CreateCommentFormProps {
   parentId?: number;

@@ -3,8 +3,8 @@ import {
   COMMENTS,
   type Comment,
   type Reply,
-} from "../models/comment.interface";
-import { CURRENT_USER, type User } from "../models/user.interface";
+} from "@/models/comment.interface";
+import { CURRENT_USER, type User } from "@/models/user.interface";
 
 interface CommentsState {
   currentUser: User;

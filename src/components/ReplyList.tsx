@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import type { Reply } from "../models/comment.interface";
-import Comment from "./Comment";
+import type { Reply } from "@/models/comment.interface";
+import Comment from "@/components/Comment";
 
 interface ReplyListProps {
   replies: Reply[];

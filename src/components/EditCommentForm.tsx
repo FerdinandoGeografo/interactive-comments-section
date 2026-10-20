@@ -1,8 +1,8 @@
 import { useState } from "react";
-import Button from "./Button";
-import CommentTextarea from "./CommentTextarea";
-import type { BaseComment } from "../models/comment.interface";
-import { isReply } from "../utils/comment.utils";
+import Button from "@/components/Button";
+import CommentTextarea from "@/components/CommentTextarea";
+import type { BaseComment } from "@/models/comment.interface";
+import { isReply } from "@/utils/comment.utils";
 
 interface EditCommentFormProps {
   comment: BaseComment;

@@ -1,17 +1,17 @@
-import type { BaseComment, Comment } from "../models/comment.interface";
+import type { BaseComment, Comment } from "@/models/comment.interface";
 
-import CommentHeader from "./CommentHeader";
-import CommentContent from "./CommentContent";
-import ScoreCounter from "./ScoreCounter";
-import EditCommentForm from "./EditCommentForm";
-import CommentActions from "./CommentActions";
-import CreateCommentForm from "./CreateCommentForm";
-import ReplyList from "./ReplyList";
+import CommentHeader from "@/components/CommentHeader";
+import CommentContent from "@/components/CommentContent";
+import ScoreCounter from "@/components/ScoreCounter";
+import EditCommentForm from "@/components/EditCommentForm";
+import CommentActions from "@/components/CommentActions";
+import CreateCommentForm from "@/components/CreateCommentForm";
+import ReplyList from "@/components/ReplyList";
 
-import { useCommentActions } from "../hooks/useCommentActions";
-import { useComments } from "../contexts/CommentsContext";
-import { isComment, isReply } from "../utils/comment.utils";
-import DeleteCommentDialog from "./DeleteCommentDialog";
+import { useCommentActions } from "@/hooks/useCommentActions";
+import { useComments } from "@/contexts/CommentsContext";
+import { isComment, isReply } from "@/utils/comment.utils";
+import DeleteCommentDialog from "@/components/DeleteCommentDialog";
 
 interface CommentProps {
   comment: BaseComment;

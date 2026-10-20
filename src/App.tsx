@@ -1,6 +1,6 @@
-import CreateCommentForm from "./components/CreateCommentForm";
-import Comment from "./components/Comment";
-import { useComments } from "./contexts/CommentsContext";
+import CreateCommentForm from "@/components/CreateCommentForm";
+import Comment from "@/components/Comment";
+import { useComments } from "@/contexts/CommentsContext";
 
 export default function App() {
   const { comments } = useComments();

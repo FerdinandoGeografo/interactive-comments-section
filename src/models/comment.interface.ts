@@ -1,4 +1,4 @@
-import { type User } from "./user.interface";
+import { type User } from "@/models/user.interface";
 
 export interface BaseComment {
   id: number;

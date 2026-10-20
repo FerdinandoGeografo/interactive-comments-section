@@ -1,5 +1,5 @@
-import Button from "./Button";
-import { useDialog } from "../hooks/useDialog";
+import Button from "@/components/Button";
+import { useDialog } from "@/hooks/useDialog";
 
 interface DeleteCommentDialogProps {
   isOpen: boolean;

@@ -1,4 +1,4 @@
-import IconButton from "./IconButton";
+import IconButton from "@/components/IconButton";
 
 interface ScoreCounterProps {
   score: number;

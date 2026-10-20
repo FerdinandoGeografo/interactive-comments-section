@@ -1,4 +1,4 @@
-import type { User } from "../models/user.interface";
+import type { User } from "@/models/user.interface";
 
 type AvatarSize = "medium" | "large";
 
