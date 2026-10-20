@@ -1,14 +1,19 @@
-import { useReducer, type ReactNode } from "react";
+import { useEffect, useReducer, type ReactNode } from "react";
 import { CommentsContext } from "@/contexts/comments-context";
 import { commentsReducer } from "@/contexts/commentsReducer";
-import { createInitialState } from "@/data/seed";
+import { loadState, saveState } from "@/data/persistence";
 
 export function CommentsProvider({ children }: { children: ReactNode }) {
-  const [{ currentUser, comments }, dispatch] = useReducer(
-    commentsReducer,
-    undefined,
-    createInitialState,
+  // Storage is read in the lazy initializer, before the first save; both
+  // are idempotent, so StrictMode double invocations are harmless.
+  const [state, dispatch] = useReducer(commentsReducer, undefined, () =>
+    loadState(),
   );
+  const { currentUser, comments } = state;
+
+  useEffect(() => {
+    saveState(state);
+  }, [state]);
 
   return (
     <CommentsContext.Provider
