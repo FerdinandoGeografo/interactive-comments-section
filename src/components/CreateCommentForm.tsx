@@ -1,9 +1,14 @@
-import { useState, type KeyboardEvent } from "react";
+import { useState } from "react";
 import Avatar from "@/components/Avatar";
 import CommentTextarea from "@/components/CommentTextarea";
 import { Button } from "@/components/ui/button";
 import { useComments } from "@/hooks/useComments";
 import { cn } from "@/lib/utils";
+import {
+  isValidContent,
+  mentionPrefix,
+  normalizeContent,
+} from "@/utils/comment.utils";
 
 interface CreateCommentFormProps {
   label: string;
@@ -24,26 +29,16 @@ export default function CreateCommentForm({
   onSubmit,
   onCancel,
 }: CreateCommentFormProps) {
-  const prefix = replyingTo ? `@${replyingTo} ` : "";
-
   const { currentUser } = useComments();
-  const [content, setContent] = useState(prefix);
+  const [content, setContent] = useState("");
+  const canSubmit = isValidContent(content);
 
   function handleSubmit(e: React.SubmitEvent) {
     e.preventDefault();
+    if (!canSubmit) return;
 
-    const cleanContent = content.replace(prefix, "").trim().slice(0, 1000);
-    if (!cleanContent) return;
-
-    onSubmit(cleanContent);
-    setContent(prefix);
-  }
-
-  function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
-    if (e.key === "Escape" && onCancel) {
-      e.preventDefault();
-      onCancel();
-    }
+    onSubmit(normalizeContent(content));
+    setContent("");
   }
 
   return (
@@ -60,13 +55,16 @@ export default function CreateCommentForm({
         label={label}
         className="-order-1 sm:order-0 sm:flex-1"
         placeholder="Add a comment…"
+        prefix={replyingTo ? mentionPrefix(replyingTo) : ""}
         value={content}
         autoFocus={autoFocus}
-        onChange={(e) => setContent(e.target.value)}
-        onKeyDown={handleKeyDown}
+        onValueChange={setContent}
+        onCancel={onCancel}
       />
 
-      <Button type="submit">{submitLabel}</Button>
+      <Button type="submit" disabled={!canSubmit}>
+        {submitLabel}
+      </Button>
     </form>
   );
 }

@@ -1,7 +1,12 @@
-import { useState, type KeyboardEvent } from "react";
+import { useState } from "react";
 import CommentTextarea from "@/components/CommentTextarea";
 import { Button } from "@/components/ui/button";
 import type { CommentEntry } from "@/models/comment.interface";
+import {
+  isValidContent,
+  mentionPrefix,
+  normalizeContent,
+} from "@/utils/comment.utils";
 
 interface EditCommentFormProps {
   entry: CommentEntry;
@@ -14,36 +19,32 @@ export default function EditCommentForm({
   onSubmit,
   onCancel,
 }: EditCommentFormProps) {
-  const replyingTo = entry.kind === "reply" ? entry.replyingTo : "";
-  const prefix = replyingTo ? `@${replyingTo} ` : "";
-  const [content, setContent] = useState(`${prefix}${entry.content}`);
+  const [content, setContent] = useState(entry.content);
+  const canSubmit = isValidContent(content);
 
   function handleSubmit(e: React.SubmitEvent) {
     e.preventDefault();
-    const cleanContent = content.replace(prefix, "").trim().slice(0, 1000);
-    if (!cleanContent) return;
-    onSubmit(cleanContent);
-  }
+    if (!canSubmit) return;
 
-  function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
-    if (e.key === "Escape") {
-      e.preventDefault();
-      onCancel();
-    }
+    const normalized = normalizeContent(content);
+    // Unchanged content just closes the form.
+    if (normalized === entry.content) onCancel();
+    else onSubmit(normalized);
   }
 
   return (
     <form className="flex flex-col items-end gap-4" onSubmit={handleSubmit}>
       <CommentTextarea
         label="Edit comment"
-        className="pb-4"
+        textareaClassName="pb-4"
+        prefix={entry.kind === "reply" ? mentionPrefix(entry.replyingTo) : ""}
         value={content}
         autoFocus
-        onChange={(e) => setContent(e.target.value)}
-        onKeyDown={handleKeyDown}
+        onValueChange={setContent}
+        onCancel={onCancel}
         rows={4}
       />
-      <Button type="submit" className="px-5">
+      <Button type="submit" className="px-5" disabled={!canSubmit}>
         update
       </Button>
     </form>
