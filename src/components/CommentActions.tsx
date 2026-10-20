@@ -23,7 +23,7 @@ export default function CommentActions({
   onReply,
 }: CommentActionsProps) {
   return (
-    <div className="col-start-2 -col-end-1 ml-auto flex items-center gap-4 sm:col-start-3 sm:row-start-1 sm:self-center">
+    <div className="col-start-2 -col-end-1 ml-auto flex flex-wrap items-center justify-end gap-x-4 gap-y-2 sm:col-start-3 sm:row-start-1 sm:self-center">
       {isAuthor ? (
         <>
           <Button

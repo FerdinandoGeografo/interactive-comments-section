@@ -8,7 +8,7 @@ export default function CommentContent({
   replyingTo,
 }: CommentContentProps) {
   return (
-    <p className="leading-6 text-gray-600">
+    <p className="leading-6 wrap-anywhere text-gray-600">
       {replyingTo && (
         <span className="font-medium text-blue-500">@{replyingTo} </span>
       )}

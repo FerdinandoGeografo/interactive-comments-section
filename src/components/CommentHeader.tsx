@@ -17,7 +17,7 @@ export default function CommentHeader({
   const now = useNow();
 
   return (
-    <div className="col-span-full flex items-center gap-4 sm:col-start-2 sm:row-start-1">
+    <div className="col-span-full flex flex-wrap items-center gap-x-4 gap-y-2 sm:col-start-2 sm:row-start-1">
       <Avatar user={user} />
       <p className="flex items-center gap-2">
         <span className="leading-4.75 font-medium text-gray-700">
