@@ -1,6 +1,16 @@
+import { useState } from "react";
+import { useReducedMotionConfig } from "motion/react";
+import * as m from "motion/react-m";
 import { Button } from "@/components/ui/button";
 import type { Vote } from "@/models/comment.interface";
 import { cn } from "@/lib/utils";
+import { transitions } from "@/lib/motion";
+
+// Each vote switches between two identical variants, which replays the pulse
+// without remounting the live region (its announcement stays the score).
+const pulse = { scale: [1, 1.25, 1], transition: transitions.pulse };
+const scoreVariants = { even: pulse, odd: pulse };
+const tap = { scale: 0.85 };
 
 interface ScoreCounterProps {
   score: number;
@@ -17,6 +27,21 @@ export default function ScoreCounter({
   author,
   onVote,
 }: ScoreCounterProps) {
+  const [votes, setVotes] = useState(0);
+  const shouldReduceMotion = useReducedMotionConfig();
+
+  function handleVote(direction: 1 | -1) {
+    setVotes((count) => count + 1);
+    onVote(direction);
+  }
+
+  // Disabled buttons keep pointer events (cursor-not-allowed), so the press
+  // feedback is only attached to enabled ones. Reduced motion would still
+  // jump to the pressed scale, so it is left out there too.
+  const voteButton = (
+    <m.button whileTap={disabled || shouldReduceMotion ? undefined : tap} />
+  );
+
   return (
     <div
       role="group"
@@ -30,21 +55,25 @@ export default function ScoreCounter({
         aria-pressed={currentUserVote === 1}
         disabled={disabled}
         className={cn(currentUserVote === 1 && "text-blue-500")}
-        onClick={() => onVote(1)}
+        render={voteButton}
+        onClick={() => handleVote(1)}
       >
         <svg className="size-2" aria-hidden="true">
           <use href="/icons.svg#plus"></use>
         </svg>
       </Button>
-      <span
+      <m.span
         aria-live="polite"
+        variants={scoreVariants}
+        initial={false}
+        animate={votes % 2 === 0 ? "even" : "odd"}
         className={cn(
           "leading-4.75 font-medium",
           score >= 0 ? "text-blue-500" : "text-red-500",
         )}
       >
         {score}
-      </span>
+      </m.span>
       <Button
         variant="vote"
         size="icon"
@@ -52,7 +81,8 @@ export default function ScoreCounter({
         aria-pressed={currentUserVote === -1}
         disabled={disabled}
         className={cn(currentUserVote === -1 && "text-blue-500")}
-        onClick={() => onVote(-1)}
+        render={voteButton}
+        onClick={() => handleVote(-1)}
       >
         <svg className="size-2" aria-hidden="true">
           <use href="/icons.svg#minus"></use>

@@ -8,6 +8,7 @@ export const transitions = {
   layout: { type: "spring", visualDuration: 0.35, bounce: 0 },
   reveal: { duration: 0.25, ease: "easeOut" },
   fade: { duration: 0.15, ease: "easeOut" },
+  pulse: { duration: 0.25, ease: "easeOut" },
 } satisfies Record<string, Transition>;
 
 // The element that replaces another in place (comment text ↔ edit form)
