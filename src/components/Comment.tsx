@@ -11,9 +11,10 @@ import CommentActions from "@/components/CommentActions";
 import CreateCommentForm from "@/components/CreateCommentForm";
 import ReplyList from "@/components/ReplyList";
 import DeleteCommentDialog from "@/components/DeleteCommentDialog";
+import FormReveal from "@/components/FormReveal";
 
 import { useCommentActions } from "@/hooks/useCommentActions";
-import { entryMotion, transitions } from "@/lib/motion";
+import { entryMotion, swapMotion, transitions } from "@/lib/motion";
 
 interface CommentProps {
   entry: CommentEntry;
@@ -66,19 +67,25 @@ export default function Comment({ entry, target, ref }: CommentProps) {
       <article className="grid grid-cols-[auto_1fr] grid-rows-[auto_auto_auto] items-center gap-4 rounded-lg bg-white p-4 sm:grid-cols-[40px_auto_auto] sm:grid-rows-[auto_auto] sm:items-start sm:gap-x-6 sm:gap-y-3.75 sm:p-6">
         <CommentHeader user={user} createdAt={createdAt} isAuthor={isAuthor} />
 
-        <div className="col-span-full sm:col-start-2">
-          {isEditing ? (
-            <EditCommentForm
-              entry={entry}
-              onSubmit={(newContent) => {
-                submitEdit(newContent);
-                editTriggerRef.current?.focus();
-              }}
-              onCancel={() => closeAndFocus(editTriggerRef.current)}
-            />
-          ) : (
-            <CommentContent content={content} replyingTo={replyingTo} />
-          )}
+        <div className="relative col-span-full sm:col-start-2">
+          <AnimatePresence initial={false} mode="popLayout">
+            {isEditing ? (
+              <m.div key="edit" {...swapMotion}>
+                <EditCommentForm
+                  entry={entry}
+                  onSubmit={(newContent) => {
+                    submitEdit(newContent);
+                    editTriggerRef.current?.focus();
+                  }}
+                  onCancel={() => closeAndFocus(editTriggerRef.current)}
+                />
+              </m.div>
+            ) : (
+              <m.div key="content" {...swapMotion}>
+                <CommentContent content={content} replyingTo={replyingTo} />
+              </m.div>
+            )}
+          </AnimatePresence>
         </div>
 
         <ScoreCounter
@@ -101,20 +108,26 @@ export default function Comment({ entry, target, ref }: CommentProps) {
         />
       </article>
 
-      {isReplying && (
-        <CreateCommentForm
-          label={`Reply to ${user.username}`}
-          submitLabel="reply"
-          replyingTo={user.username}
-          autoFocus
-          className="-mt-2 sm:-mt-3"
-          onSubmit={(newContent) => {
-            submitReply(newContent);
-            replyTriggerRef.current?.focus();
-          }}
-          onCancel={() => closeAndFocus(replyTriggerRef.current)}
-        />
-      )}
+      {/* The wrapper cancels the list gap so a collapsed form takes no
+          space; the form sits 8px below the entry (active-states.jpg). */}
+      <AnimatePresence initial={false}>
+        {isReplying && (
+          <FormReveal key="reply-form" className="-mt-4 sm:-mt-5">
+            <CreateCommentForm
+              label={`Reply to ${user.username}`}
+              submitLabel="reply"
+              replyingTo={user.username}
+              autoFocus
+              className="mt-2"
+              onSubmit={(newContent) => {
+                submitReply(newContent);
+                replyTriggerRef.current?.focus();
+              }}
+              onCancel={() => closeAndFocus(replyTriggerRef.current)}
+            />
+          </FormReveal>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence initial={false} mode="popLayout">
         {entry.kind === "comment" && entry.replies.length > 0 && (

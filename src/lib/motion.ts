@@ -6,7 +6,17 @@ export const transitions = {
   enter: { type: "spring", visualDuration: 0.3, bounce: 0 },
   exit: { duration: 0.2, ease: "easeOut" },
   layout: { type: "spring", visualDuration: 0.35, bounce: 0 },
+  reveal: { duration: 0.25, ease: "easeOut" },
+  fade: { duration: 0.15, ease: "easeOut" },
 } satisfies Record<string, Transition>;
+
+// The element that replaces another in place (comment text ↔ edit form)
+// fades in; the one it replaces leaves at once.
+export const swapMotion = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1, transition: transitions.fade },
+  exit: { opacity: 0, transition: { duration: 0 } },
+};
 
 // Entries (comments, replies, reply lists) fade and rise in, fade out.
 export const entryMotion = {
