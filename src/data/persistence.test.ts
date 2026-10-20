@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { commentsReducer } from "@/contexts/commentsReducer";
 import {
   BACKUP_KEY,
-  loadState,
+  loadPersistedState,
   saveState,
   STORAGE_KEY,
 } from "@/data/persistence";
@@ -29,16 +29,21 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe("loadState", () => {
+describe("loadPersistedState", () => {
   it("starts from the seed with ISO timestamps when nothing is stored", () => {
-    const state = loadState(createStorage(), NOW);
+    const storage = createStorage();
+    const { status, state, save } = loadPersistedState(storage, NOW);
 
+    expect(status).toBe("missing");
     expect(state).toEqual(createInitialState(NOW));
     expect(state.comments[0].createdAt).toBe("2026-09-20T12:00:00.000Z");
     expect(warn).not.toHaveBeenCalled();
+
+    save(state);
+    expect(loadPersistedState(storage, NOW + 1000).state).toEqual(state);
   });
 
-  it("restores a saved state, including an empty list", () => {
+  it("restores a saved state", () => {
     const storage = createStorage();
     const edited = [
       {
@@ -62,11 +67,20 @@ describe("loadState", () => {
     const state = edited.reduce(commentsReducer, createInitialState(NOW));
 
     saveState(state, storage);
-    expect(loadState(storage, NOW + 1000)).toEqual(state);
+    const loaded = loadPersistedState(storage, NOW + 1000);
+    expect(loaded.status).toBe("restored");
+    expect(loaded.state).toEqual(state);
+  });
 
-    const empty = { ...state, comments: [] };
+  it("keeps an empty list empty across saves and reloads", () => {
+    const storage = createStorage();
+    const empty = { ...createInitialState(NOW), comments: [] };
     saveState(empty, storage);
-    expect(loadState(storage, NOW)).toEqual(empty);
+
+    const first = loadPersistedState(storage, NOW);
+    expect(first).toMatchObject({ status: "restored", state: empty });
+    first.save(first.state);
+    expect(loadPersistedState(storage, NOW + 1000).state).toEqual(empty);
   });
 
   const valid = () => ({ version: 1, state: createInitialState(NOW) });
@@ -86,26 +100,74 @@ describe("loadState", () => {
     ["duplicate IDs", JSON.stringify(withRoot({ id: "2" }))],
   ])("backs up %s and starts from the seed", (_, raw) => {
     const storage = createStorage({ [STORAGE_KEY]: raw });
+    const { status, state } = loadPersistedState(storage, NOW);
 
-    expect(loadState(storage, NOW)).toEqual(createInitialState(NOW));
+    expect(status).toBe("recovered");
+    expect(state).toEqual(createInitialState(NOW));
     expect(storage.items.get(BACKUP_KEY)).toBe(raw);
     expect(storage.items.get(STORAGE_KEY)).toBe(raw);
     expect(warn).toHaveBeenCalledOnce();
   });
 
-  it("falls back to the seed when storage throws or is unavailable", () => {
+  it("saves over unrecognized data only after backing it up", () => {
+    const storage = createStorage({ [STORAGE_KEY]: "{not json" });
+    const { state, save } = loadPersistedState(storage, NOW);
+
+    save(state);
+    expect(storage.items.get(BACKUP_KEY)).toBe("{not json");
+    expect(loadPersistedState(storage, NOW).status).toBe("restored");
+  });
+
+  it("never overwrites unrecognized data that could not be backed up", () => {
+    const storage = createStorage({ [STORAGE_KEY]: "{not json" });
+    const setItem = storage.setItem;
+    // The backup fails (e.g. quota) while the main key stays writable.
+    storage.setItem = (key, value) => {
+      if (key === BACKUP_KEY) throw new Error("QuotaExceededError");
+      setItem(key, value);
+    };
+    const { status, state, save } = loadPersistedState(storage, NOW);
+
+    expect(status).toBe("backupFailed");
+    expect(state).toEqual(createInitialState(NOW));
+    save(state);
+    save(
+      commentsReducer(state, {
+        type: "delete",
+        payload: { target: { kind: "comment", id: "1" } },
+      }),
+    );
+    expect(storage.items.get(STORAGE_KEY)).toBe("{not json");
+    expect(storage.items.has(BACKUP_KEY)).toBe(false);
+  });
+
+  it("never writes when the stored value could not be read", () => {
+    const storage = createStorage({ [STORAGE_KEY]: "saved" });
+    storage.getItem = () => {
+      throw new Error("SecurityError");
+    };
+    const { status, state, save } = loadPersistedState(storage, NOW);
+
+    expect(status).toBe("readFailed");
+    expect(state).toEqual(createInitialState(NOW));
+    save(state);
+    expect(storage.items.get(STORAGE_KEY)).toBe("saved");
+    expect(warn).toHaveBeenCalledOnce();
+  });
+
+  it("works in memory when storage is unavailable or saving throws", () => {
+    const { status, state, save } = loadPersistedState(null, NOW);
+    expect(status).toBe("unavailable");
+    expect(state).toEqual(createInitialState(NOW));
+    expect(() => save(state)).not.toThrow();
+
     const failing = {
-      getItem: () => {
-        throw new Error("SecurityError");
-      },
+      getItem: () => null,
       setItem: () => {
         throw new Error("QuotaExceededError");
       },
     };
-
-    expect(loadState(failing, NOW)).toEqual(createInitialState(NOW));
-    expect(loadState(null, NOW)).toEqual(createInitialState(NOW));
-    expect(() => saveState(createInitialState(NOW), failing)).not.toThrow();
-    expect(warn).toHaveBeenCalledTimes(3);
+    expect(() => saveState(state, failing)).not.toThrow();
+    expect(warn).toHaveBeenCalledTimes(2);
   });
 });

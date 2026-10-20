@@ -117,42 +117,71 @@ function parseJson(raw: string): unknown {
   }
 }
 
-// Missing data starts from the seed. Unrecognized data (invalid JSON,
-// unknown schema or version) is copied to BACKUP_KEY before the seed is
-// used, so the next save never destroys it.
-export function loadState(
+export type LoadStatus =
+  | "missing"
+  | "restored"
+  | "recovered"
+  | "backupFailed"
+  | "readFailed"
+  | "unavailable";
+
+export interface PersistedState {
+  status: LoadStatus;
+  state: CommentsState;
+  /** Saves the state, or does nothing when saving could destroy data. */
+  save: (state: CommentsState) => void;
+}
+
+// Reads, validates and recovers the stored state once per page load, before
+// React renders. Missing data starts from the seed. Unrecognized data
+// (invalid JSON, unknown schema or version) is copied to BACKUP_KEY before
+// the seed is used. When the stored value cannot be read or backed up,
+// the app keeps working in memory and never writes over it.
+export function loadPersistedState(
   storage = getStorage(),
   now = Date.now(),
-): CommentsState {
+): PersistedState {
+  const save = (state: CommentsState) => saveState(state, storage);
+  const inMemory = (status: LoadStatus): PersistedState => ({
+    status,
+    state: createInitialState(now),
+    save: () => {},
+  });
+
   if (!storage) {
     console.warn("Storage is unavailable; comments will not be saved.");
-    return createInitialState(now);
+    return inMemory("unavailable");
   }
 
   let raw: string | null;
   try {
     raw = storage.getItem(STORAGE_KEY);
   } catch (error) {
-    console.warn("Saved comments could not be read.", error);
-    return createInitialState(now);
+    console.warn(
+      "Saved comments could not be read; changes will not be saved.",
+      error,
+    );
+    return inMemory("readFailed");
   }
-  if (raw === null) return createInitialState(now);
+  if (raw === null)
+    return { status: "missing", state: createInitialState(now), save };
 
   const state = parseStoredState(parseJson(raw));
-  if (state) return state;
+  if (state) return { status: "restored", state, save };
 
   try {
     storage.setItem(BACKUP_KEY, raw);
-    console.warn(
-      `Saved comments were not recognized and have been moved to "${BACKUP_KEY}"; starting from the sample data.`,
-    );
   } catch (error) {
     console.warn(
-      "Saved comments were not recognized and could not be backed up; starting from the sample data.",
+      "Saved comments were not recognized and could not be backed up; they are left untouched and changes will not be saved.",
       error,
     );
+    return inMemory("backupFailed");
   }
-  return createInitialState(now);
+  console.warn(
+    `Saved comments were not recognized and have been moved to "${BACKUP_KEY}"; starting from the sample data.`,
+  );
+  return { status: "recovered", state: createInitialState(now), save };
 }
 
 export function saveState(state: CommentsState, storage = getStorage()) {

@@ -1,19 +1,25 @@
 import { useEffect, useReducer, type ReactNode } from "react";
 import { CommentsContext } from "@/contexts/comments-context";
 import { commentsReducer } from "@/contexts/commentsReducer";
-import { loadState, saveState } from "@/data/persistence";
+import type { PersistedState } from "@/data/persistence";
 
-export function CommentsProvider({ children }: { children: ReactNode }) {
-  // Storage is read in the lazy initializer, before the first save; both
-  // are idempotent, so StrictMode double invocations are harmless.
-  const [state, dispatch] = useReducer(commentsReducer, undefined, () =>
-    loadState(),
-  );
+interface CommentsProviderProps {
+  /** Loaded once before rendering (see main.tsx), so reads always precede saves. */
+  persistence: PersistedState;
+  children: ReactNode;
+}
+
+export function CommentsProvider({
+  persistence,
+  children,
+}: CommentsProviderProps) {
+  const [state, dispatch] = useReducer(commentsReducer, persistence.state);
   const { currentUser, comments } = state;
 
+  // Idempotent, so StrictMode double invocations are harmless.
   useEffect(() => {
-    saveState(state);
-  }, [state]);
+    persistence.save(state);
+  }, [persistence, state]);
 
   return (
     <CommentsContext.Provider
