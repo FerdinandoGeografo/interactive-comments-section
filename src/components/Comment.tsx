@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import type { CommentEntry, CommentTarget } from "@/models/comment.interface";
 
 import CommentHeader from "@/components/CommentHeader";
@@ -10,7 +11,6 @@ import ReplyList from "@/components/ReplyList";
 import DeleteCommentDialog from "@/components/DeleteCommentDialog";
 
 import { useCommentActions } from "@/hooks/useCommentActions";
-import { useComments } from "@/hooks/useComments";
 
 interface CommentProps {
   entry: CommentEntry;
@@ -18,22 +18,31 @@ interface CommentProps {
 }
 
 export default function Comment({ entry, target }: CommentProps) {
-  const { currentUser } = useComments();
   const {
-    mode,
-    setMode,
+    isAuthor,
+    isReplying,
+    isEditing,
+    toggleReply,
+    toggleEdit,
+    closeForm,
+    vote,
+    submitReply,
+    submitEdit,
     isDeleteOpen,
     setIsDeleteOpen,
-    handleVote,
-    handleEdit,
-    handleDeleteConfirmed,
-    handleReplySubmitted,
-  } = useCommentActions(target);
+    confirmDelete,
+  } = useCommentActions(entry, target);
+  const replyTriggerRef = useRef<HTMLButtonElement>(null);
+  const editTriggerRef = useRef<HTMLButtonElement>(null);
 
   const { content, user, score, createdAt } = entry;
-
-  const isAuthor = user.username === currentUser.username;
   const replyingTo = entry.kind === "reply" ? entry.replyingTo : "";
+
+  // Closing a form (submit, Escape) returns focus to the button that opened it.
+  function closeAndFocus(trigger: HTMLButtonElement | null) {
+    closeForm();
+    trigger?.focus();
+  }
 
   return (
     <li className="contents">
@@ -41,8 +50,15 @@ export default function Comment({ entry, target }: CommentProps) {
         <CommentHeader user={user} createdAt={createdAt} isAuthor={isAuthor} />
 
         <div className="col-span-full sm:col-start-2">
-          {mode === "edit" ? (
-            <EditCommentForm entry={entry} onSubmit={handleEdit} />
+          {isEditing ? (
+            <EditCommentForm
+              entry={entry}
+              onSubmit={(newContent) => {
+                submitEdit(newContent);
+                editTriggerRef.current?.focus();
+              }}
+              onCancel={() => closeAndFocus(editTriggerRef.current)}
+            />
           ) : (
             <CommentContent content={content} replyingTo={replyingTo} />
           )}
@@ -53,46 +69,44 @@ export default function Comment({ entry, target }: CommentProps) {
           currentUserVote={entry.currentUserVote}
           disabled={isAuthor}
           author={user.username}
-          onVote={handleVote}
+          onVote={vote}
         />
 
         <CommentActions
           isAuthor={isAuthor}
+          isReplying={isReplying}
+          isEditing={isEditing}
+          replyTriggerRef={replyTriggerRef}
+          editTriggerRef={editTriggerRef}
           onDelete={() => setIsDeleteOpen(true)}
-          onEdit={() => setMode("edit")}
-          onReply={() => setMode("reply")}
+          onEdit={toggleEdit}
+          onReply={toggleReply}
         />
       </article>
-      {entry.kind === "comment" && (
-        <>
-          {entry.replies.length > 0 && (
-            <ReplyList
-              replies={entry.replies}
-              threadId={entry.id}
-              replyForm={
-                mode === "reply" ? (
-                  <CreateCommentForm
-                    target={target}
-                    replyingTo={user.username}
-                    onSubmitted={() => handleReplySubmitted}
-                  />
-                ) : null
-              }
-            />
-          )}
-          {entry.replies.length === 0 && mode === "reply" && (
-            <CreateCommentForm
-              target={target}
-              replyingTo={user.username}
-              onSubmitted={handleReplySubmitted}
-            />
-          )}
-        </>
+
+      {isReplying && (
+        <CreateCommentForm
+          label={`Reply to ${user.username}`}
+          submitLabel="reply"
+          replyingTo={user.username}
+          autoFocus
+          className="-mt-2 sm:-mt-3"
+          onSubmit={(newContent) => {
+            submitReply(newContent);
+            replyTriggerRef.current?.focus();
+          }}
+          onCancel={() => closeAndFocus(replyTriggerRef.current)}
+        />
       )}
+
+      {entry.kind === "comment" && entry.replies.length > 0 && (
+        <ReplyList replies={entry.replies} threadId={entry.id} />
+      )}
+
       <DeleteCommentDialog
         open={isDeleteOpen}
         onOpenChange={setIsDeleteOpen}
-        onConfirm={handleDeleteConfirmed}
+        onConfirm={confirmDelete}
       />
     </li>
   );

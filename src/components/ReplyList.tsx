@@ -1,18 +1,12 @@
-import type { ReactNode } from "react";
 import type { Reply } from "@/models/comment.interface";
 import Comment from "@/components/Comment";
 
 interface ReplyListProps {
   replies: Reply[];
   threadId: string;
-  replyForm: ReactNode;
 }
 
-export default function ReplyList({
-  replies,
-  threadId,
-  replyForm,
-}: ReplyListProps) {
+export default function ReplyList({ replies, threadId }: ReplyListProps) {
   return (
     <div className="flex flex-col gap-4 border-l border-l-gray-200 pl-4 sm:ml-10.75 sm:gap-5 sm:pl-10.75">
       <ul className="contents">
@@ -24,7 +18,6 @@ export default function ReplyList({
           />
         ))}
       </ul>
-      {replyForm}
     </div>
   );
 }

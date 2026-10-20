@@ -1,11 +1,18 @@
 import CreateCommentForm from "@/components/CreateCommentForm";
 import Comment from "@/components/Comment";
 import { useComments } from "@/hooks/useComments";
+import { createId } from "@/lib/id";
 import { COMMENTS_HEADING_ID } from "@/lib/focus";
 import { sortRootComments } from "@/utils/comment.utils";
 
 export default function App() {
-  const { comments } = useComments();
+  const { comments, dispatch } = useComments();
+
+  const createComment = (content: string) =>
+    dispatch({
+      type: "createComment",
+      payload: { id: createId(), content, createdAt: "now" },
+    });
 
   return (
     <div className="flex min-h-screen justify-center overflow-y-auto bg-gray-100">
@@ -26,7 +33,12 @@ export default function App() {
           </ul>
         )}
 
-        <CreateCommentForm />
+        <CreateCommentForm
+          label="Add a comment"
+          submitLabel="send"
+          className="mt-auto"
+          onSubmit={createComment}
+        />
       </main>
     </div>
   );

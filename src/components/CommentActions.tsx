@@ -1,7 +1,12 @@
+import type { Ref } from "react";
 import { Button } from "@/components/ui/button";
 
 interface CommentActionsProps {
   isAuthor: boolean;
+  isReplying: boolean;
+  isEditing: boolean;
+  replyTriggerRef: Ref<HTMLButtonElement>;
+  editTriggerRef: Ref<HTMLButtonElement>;
   onDelete: () => void;
   onEdit: () => void;
   onReply: () => void;
@@ -9,6 +14,10 @@ interface CommentActionsProps {
 
 export default function CommentActions({
   isAuthor,
+  isReplying,
+  isEditing,
+  replyTriggerRef,
+  editTriggerRef,
   onDelete,
   onEdit,
   onReply,
@@ -28,7 +37,13 @@ export default function CommentActions({
             </svg>
             <span>Delete</span>
           </Button>
-          <Button variant="ghost" size="inline" onClick={onEdit}>
+          <Button
+            ref={editTriggerRef}
+            variant="ghost"
+            size="inline"
+            aria-expanded={isEditing}
+            onClick={onEdit}
+          >
             <svg className="size-3" aria-hidden="true">
               <use href="/icons.svg#edit"></use>
             </svg>
@@ -36,7 +51,13 @@ export default function CommentActions({
           </Button>
         </>
       ) : (
-        <Button variant="ghost" size="inline" onClick={onReply}>
+        <Button
+          ref={replyTriggerRef}
+          variant="ghost"
+          size="inline"
+          aria-expanded={isReplying}
+          onClick={onReply}
+        >
           <svg className="size-3" aria-hidden="true">
             <use href="/icons.svg#reply"></use>
           </svg>

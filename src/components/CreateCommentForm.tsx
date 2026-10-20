@@ -1,26 +1,32 @@
-import { useState } from "react";
-import type { CommentTarget } from "@/models/comment.interface";
+import { useState, type KeyboardEvent } from "react";
 import Avatar from "@/components/Avatar";
 import CommentTextarea from "@/components/CommentTextarea";
 import { Button } from "@/components/ui/button";
 import { useComments } from "@/hooks/useComments";
-import { createId } from "@/lib/id";
+import { cn } from "@/lib/utils";
 
 interface CreateCommentFormProps {
-  target?: CommentTarget;
+  label: string;
+  submitLabel: string;
   replyingTo?: string;
-  onSubmitted?: () => void;
+  autoFocus?: boolean;
+  className?: string;
+  onSubmit: (content: string) => void;
+  onCancel?: () => void;
 }
 
 export default function CreateCommentForm({
-  target,
+  label,
+  submitLabel,
   replyingTo,
-  onSubmitted,
+  autoFocus,
+  className,
+  onSubmit,
+  onCancel,
 }: CreateCommentFormProps) {
   const prefix = replyingTo ? `@${replyingTo} ` : "";
-  const submitLabel = target ? "reply" : "send";
 
-  const { currentUser, dispatch } = useComments();
+  const { currentUser } = useComments();
   const [content, setContent] = useState(prefix);
 
   function handleSubmit(e: React.SubmitEvent) {
@@ -29,30 +35,35 @@ export default function CreateCommentForm({
     const cleanContent = content.replace(prefix, "").trim().slice(0, 1000);
     if (!cleanContent) return;
 
-    const entry = { id: createId(), content: cleanContent, createdAt: "now" };
-    if (target) {
-      dispatch({ type: "createReply", payload: { ...entry, target } });
-    } else {
-      dispatch({ type: "createComment", payload: entry });
-    }
-
+    onSubmit(cleanContent);
     setContent(prefix);
-    onSubmitted?.();
+  }
+
+  function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === "Escape" && onCancel) {
+      e.preventDefault();
+      onCancel();
+    }
   }
 
   return (
     <form
-      className="mt-auto flex flex-wrap items-center justify-between gap-4 rounded-lg bg-white px-4 pt-4 pb-3.25 sm:items-start sm:px-6 sm:pt-6 sm:pb-6"
+      className={cn(
+        "flex flex-wrap items-center justify-between gap-4 rounded-lg bg-white px-4 pt-4 pb-3.25 sm:items-start sm:px-6 sm:pt-6 sm:pb-6",
+        className,
+      )}
       onSubmit={handleSubmit}
     >
       <Avatar user={currentUser} size="large" className="sm:mt-1" />
 
       <CommentTextarea
-        label={replyingTo ? `Reply to ${replyingTo}` : "Add a comment"}
+        label={label}
         className="-order-1 sm:order-0 sm:flex-1"
         placeholder="Add a comment…"
         value={content}
+        autoFocus={autoFocus}
         onChange={(e) => setContent(e.target.value)}
+        onKeyDown={handleKeyDown}
       />
 
       <Button type="submit">{submitLabel}</Button>
