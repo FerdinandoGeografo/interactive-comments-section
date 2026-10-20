@@ -34,6 +34,12 @@ export function isAuthoredBy(entry: CommentEntry, user: User) {
   return entry.user.username === user.username;
 }
 
+// Roots by descending score; toSorted is stable, so equal scores keep the
+// insertion order (oldest first). Replies are never reordered.
+export function sortRootComments(comments: readonly ThreadComment[]) {
+  return comments.toSorted((a, b) => b.score - a.score);
+}
+
 // Pressing the active vote removes it; the opposite vote replaces it.
 export function nextVote(current: Vote, direction: 1 | -1): Vote {
   return current === direction ? 0 : direction;

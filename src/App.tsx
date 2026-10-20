@@ -2,6 +2,7 @@ import CreateCommentForm from "@/components/CreateCommentForm";
 import Comment from "@/components/Comment";
 import { useComments } from "@/hooks/useComments";
 import { COMMENTS_HEADING_ID } from "@/lib/focus";
+import { sortRootComments } from "@/utils/comment.utils";
 
 export default function App() {
   const { comments } = useComments();
@@ -15,7 +16,7 @@ export default function App() {
 
         {comments.length > 0 && (
           <ul className="contents">
-            {comments.map((comment) => (
+            {sortRootComments(comments).map((comment) => (
               <Comment
                 entry={comment}
                 target={{ kind: "comment", id: comment.id }}
