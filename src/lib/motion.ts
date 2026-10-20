@@ -1,4 +1,19 @@
-import { MotionGlobalConfig } from "motion/react";
+import { MotionGlobalConfig, type Transition } from "motion/react";
+
+// Shared transitions. Under reduced motion MotionConfig drops transform and
+// layout animations; opacity still fades.
+export const transitions = {
+  enter: { type: "spring", visualDuration: 0.3, bounce: 0 },
+  exit: { duration: 0.2, ease: "easeOut" },
+  layout: { type: "spring", visualDuration: 0.35, bounce: 0 },
+} satisfies Record<string, Transition>;
+
+// Entries (comments, replies, reply lists) fade and rise in, fade out.
+export const entryMotion = {
+  initial: { opacity: 0, y: 8 },
+  animate: { opacity: 1, y: 0, transition: transitions.enter },
+  exit: { opacity: 0, scale: 0.98, transition: transitions.exit },
+};
 
 export type AnimationMode = "animated" | "static";
 

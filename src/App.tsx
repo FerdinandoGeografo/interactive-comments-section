@@ -1,8 +1,11 @@
+import { AnimatePresence, LayoutGroup } from "motion/react";
+import * as m from "motion/react-m";
 import CreateCommentForm from "@/components/CreateCommentForm";
 import Comment from "@/components/Comment";
 import { useComments } from "@/hooks/useComments";
 import { createId } from "@/lib/id";
 import { COMMENTS_HEADING_ID } from "@/lib/focus";
+import { entryMotion, transitions } from "@/lib/motion";
 import { sortRootComments } from "@/utils/comment.utils";
 
 export default function App() {
@@ -21,23 +24,39 @@ export default function App() {
           Comments
         </h1>
 
-        {comments.length > 0 && (
-          <ul className="flex flex-col gap-4 sm:gap-5">
-            {sortRootComments(comments).map((comment) => (
-              <Comment
-                entry={comment}
-                target={{ kind: "comment", id: comment.id }}
-                key={comment.id}
-              />
-            ))}
-          </ul>
-        )}
+        {/* Entries that change size or order move everything below them; the
+            group lets components that did not re-render animate too. */}
+        <LayoutGroup>
+          <AnimatePresence initial={false}>
+            {comments.length > 0 && (
+              <m.ul
+                key="comments"
+                {...entryMotion}
+                className="relative flex flex-col gap-4 sm:gap-5"
+              >
+                {/* popLayout takes deleted entries out of the flow at once,
+                    so the entries below slide up while they fade out. */}
+                <AnimatePresence initial={false} mode="popLayout" propagate>
+                  {sortRootComments(comments).map((comment) => (
+                    <Comment
+                      entry={comment}
+                      target={{ kind: "comment", id: comment.id }}
+                      key={comment.id}
+                    />
+                  ))}
+                </AnimatePresence>
+              </m.ul>
+            )}
+          </AnimatePresence>
 
-        <CreateCommentForm
-          label="Add a comment"
-          submitLabel="send"
-          onSubmit={createComment}
-        />
+          <m.div layout="position" transition={{ layout: transitions.layout }}>
+            <CreateCommentForm
+              label="Add a comment"
+              submitLabel="send"
+              onSubmit={createComment}
+            />
+          </m.div>
+        </LayoutGroup>
       </main>
     </div>
   );

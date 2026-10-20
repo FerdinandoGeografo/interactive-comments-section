@@ -1,4 +1,6 @@
-import { useRef } from "react";
+import { useRef, type Ref } from "react";
+import { AnimatePresence, useIsPresent } from "motion/react";
+import * as m from "motion/react-m";
 import type { CommentEntry, CommentTarget } from "@/models/comment.interface";
 
 import CommentHeader from "@/components/CommentHeader";
@@ -11,13 +13,16 @@ import ReplyList from "@/components/ReplyList";
 import DeleteCommentDialog from "@/components/DeleteCommentDialog";
 
 import { useCommentActions } from "@/hooks/useCommentActions";
+import { entryMotion, transitions } from "@/lib/motion";
 
 interface CommentProps {
   entry: CommentEntry;
   target: CommentTarget;
+  /** Set by AnimatePresence (popLayout measures the exiting element). */
+  ref?: Ref<HTMLLIElement>;
 }
 
-export default function Comment({ entry, target }: CommentProps) {
+export default function Comment({ entry, target, ref }: CommentProps) {
   const {
     isAuthor,
     isReplying,
@@ -32,6 +37,11 @@ export default function Comment({ entry, target }: CommentProps) {
     setIsDeleteOpen,
     confirmDelete,
   } = useCommentActions(entry, target);
+  // An entry that is fading out stays in the DOM: inert keeps it out of
+  // focus, pointer and assistive technology so it cannot be used twice.
+  // While siblings slide (layout animations), the entry holding focus stays
+  // on top so a moving sibling never covers an open form.
+  const isPresent = useIsPresent();
   const replyTriggerRef = useRef<HTMLButtonElement>(null);
   const editTriggerRef = useRef<HTMLButtonElement>(null);
 
@@ -45,7 +55,14 @@ export default function Comment({ entry, target }: CommentProps) {
   }
 
   return (
-    <li className="flex flex-col gap-4 sm:gap-5">
+    <m.li
+      ref={ref}
+      layout="position"
+      {...entryMotion}
+      transition={{ layout: transitions.layout }}
+      inert={!isPresent}
+      className="relative flex flex-col gap-4 focus-within:z-10 sm:gap-5"
+    >
       <article className="grid grid-cols-[auto_1fr] grid-rows-[auto_auto_auto] items-center gap-4 rounded-lg bg-white p-4 sm:grid-cols-[40px_auto_auto] sm:grid-rows-[auto_auto] sm:items-start sm:gap-x-6 sm:gap-y-3.75 sm:p-6">
         <CommentHeader user={user} createdAt={createdAt} isAuthor={isAuthor} />
 
@@ -99,15 +116,21 @@ export default function Comment({ entry, target }: CommentProps) {
         />
       )}
 
-      {entry.kind === "comment" && entry.replies.length > 0 && (
-        <ReplyList replies={entry.replies} threadId={entry.id} />
-      )}
+      <AnimatePresence initial={false} mode="popLayout">
+        {entry.kind === "comment" && entry.replies.length > 0 && (
+          <ReplyList
+            key="replies"
+            replies={entry.replies}
+            threadId={entry.id}
+          />
+        )}
+      </AnimatePresence>
 
       <DeleteCommentDialog
         open={isDeleteOpen}
         onOpenChange={setIsDeleteOpen}
         onConfirm={confirmDelete}
       />
-    </li>
+    </m.li>
   );
 }
