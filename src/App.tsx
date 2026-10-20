@@ -36,7 +36,6 @@ export default function App() {
         <CreateCommentForm
           label="Add a comment"
           submitLabel="send"
-          className="mt-auto"
           onSubmit={createComment}
         />
       </main>
