@@ -1,5 +1,7 @@
 import type { User } from "@/models/user.interface";
 import Avatar from "@/components/Avatar";
+import { useNow } from "@/hooks/useNow";
+import { formatExactDate, formatRelativeTime } from "@/utils/time.utils";
 
 interface CommentHeaderProps {
   user: User;
@@ -12,6 +14,8 @@ export default function CommentHeader({
   createdAt,
   isAuthor,
 }: CommentHeaderProps) {
+  const now = useNow();
+
   return (
     <div className="col-span-full flex items-center gap-4 sm:col-start-2 sm:row-start-1">
       <Avatar user={user} />
@@ -25,7 +29,13 @@ export default function CommentHeader({
           </span>
         )}
       </p>
-      <p className="leading-6 text-gray-600">{createdAt}</p>
+      <time
+        dateTime={createdAt}
+        title={formatExactDate(createdAt)}
+        className="leading-6 text-gray-600"
+      >
+        {formatRelativeTime(createdAt, now)}
+      </time>
     </div>
   );
 }

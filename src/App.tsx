@@ -11,7 +11,7 @@ export default function App() {
   const createComment = (content: string) =>
     dispatch({
       type: "createComment",
-      payload: { id: createId(), content, createdAt: "now" },
+      payload: { id: createId(), content, createdAt: new Date().toISOString() },
     });
 
   return (

@@ -25,7 +25,12 @@ export function useCommentActions(entry: CommentEntry, target: CommentTarget) {
   const submitReply = (content: string) => {
     dispatch({
       type: "createReply",
-      payload: { target, id: createId(), content, createdAt: "now" },
+      payload: {
+        target,
+        id: createId(),
+        content,
+        createdAt: new Date().toISOString(),
+      },
     });
     closeForm();
   };
