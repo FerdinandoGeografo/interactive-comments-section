@@ -49,7 +49,11 @@ export default function Comment({ comment, parentId }: CommentProps) {
           )}
         </div>
 
-        <ScoreCounter score={score} onVote={handleVote} />
+        <ScoreCounter
+          score={score}
+          author={user.username}
+          onVote={handleVote}
+        />
 
         <CommentActions
           isAuthor={isAuthor}

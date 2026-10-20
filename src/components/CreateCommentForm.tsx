@@ -1,8 +1,8 @@
 import { useState } from "react";
 import type { Comment, Reply } from "@/models/comment.interface";
 import Avatar from "@/components/Avatar";
-import Button from "@/components/Button";
 import CommentTextarea from "@/components/CommentTextarea";
+import { Button } from "@/components/ui/button";
 import { useComments } from "@/hooks/useComments";
 
 interface CreateCommentFormProps {
@@ -56,16 +56,14 @@ export default function CreateCommentForm({
       <Avatar user={currentUser} size="large" className="sm:mt-1" />
 
       <CommentTextarea
-        id="new-comment"
-        className="-order-1 px-6 py-3 sm:order-0 sm:flex-1"
-        placeholder="Add a comment..."
+        label={replyingTo ? `Reply to ${replyingTo}` : "Add a comment"}
+        className="-order-1 sm:order-0 sm:flex-1"
+        placeholder="Add a comment…"
         value={content}
-        setContent={setContent}
-      ></CommentTextarea>
+        onChange={(e) => setContent(e.target.value)}
+      />
 
-      <Button type="submit">
-        <span>{submitLabel}</span>
-      </Button>
+      <Button type="submit">{submitLabel}</Button>
     </form>
   );
 }

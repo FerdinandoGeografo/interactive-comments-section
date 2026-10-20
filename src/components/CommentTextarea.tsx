@@ -1,28 +1,25 @@
-interface CommentTextareaProps {
-  id: string;
-  placeholder?: string;
-  value: string;
-  setContent: (value: string) => void;
-  className?: string;
-  rows?: number;
+import { useId, type ComponentProps } from "react";
+import { Textarea } from "@/components/ui/textarea";
+
+interface CommentTextareaProps extends ComponentProps<typeof Textarea> {
+  label: string;
 }
 
 export default function CommentTextarea({
+  label,
   id,
-  placeholder = "",
-  value,
-  setContent,
-  className = "",
   rows = 3,
+  ...props
 }: CommentTextareaProps) {
+  const generatedId = useId();
+  const textareaId = id ?? generatedId;
+
   return (
-    <textarea
-      id={id}
-      className={`w-full resize-none rounded-lg border border-gray-200 leading-6 text-gray-700 caret-blue-500 outline-0 transition-colors duration-300 placeholder:text-gray-600 hover:border-blue-500 focus:border-blue-500 ${className}`}
-      placeholder={placeholder}
-      value={value}
-      onChange={(e) => setContent(e.target.value)}
-      rows={rows}
-    ></textarea>
+    <>
+      <label htmlFor={textareaId} className="sr-only">
+        {label}
+      </label>
+      <Textarea id={textareaId} rows={rows} {...props} />
+    </>
   );
 }

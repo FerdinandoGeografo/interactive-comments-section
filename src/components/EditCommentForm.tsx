@@ -1,6 +1,6 @@
 import { useState } from "react";
-import Button from "@/components/Button";
 import CommentTextarea from "@/components/CommentTextarea";
+import { Button } from "@/components/ui/button";
 import type { BaseComment } from "@/models/comment.interface";
 import { isReply } from "@/utils/comment.utils";
 
@@ -27,14 +27,14 @@ export default function EditCommentForm({
   return (
     <form className="flex flex-col items-end gap-4" onSubmit={handleSubmit}>
       <CommentTextarea
-        id={`edit-${comment.id}`}
-        className="flex px-6 pt-3 pb-4"
+        label="Edit comment"
+        className="pb-4"
         value={content}
-        setContent={setContent}
+        onChange={(e) => setContent(e.target.value)}
         rows={4}
-      ></CommentTextarea>
-      <Button type="submit" className="px-5!">
-        <span>update</span>
+      />
+      <Button type="submit" className="px-5">
+        update
       </Button>
     </form>
   );

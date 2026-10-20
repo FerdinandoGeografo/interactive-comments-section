@@ -1,4 +1,5 @@
 import type { User } from "@/models/user.interface";
+import { cn } from "@/lib/utils";
 
 type AvatarSize = "medium" | "large";
 
@@ -13,16 +14,19 @@ const AVATAR_SIZES: Record<AvatarSize, string> = {
   large: "size-8 sm:size-10",
 };
 
+// Decorative: the username is always rendered next to it or implied by the form.
 export default function Avatar({
-  user: { image, username },
+  user: { image },
   size = "medium",
-  className = "",
+  className,
 }: AvatarProps) {
   return (
     <img
-      className={`rounded-full ${AVATAR_SIZES[size]} ${className}`}
+      className={cn("rounded-full", AVATAR_SIZES[size], className)}
       src={image.webp}
-      alt={`${username}'s avatar image`}
+      alt=""
+      width={64}
+      height={64}
     />
   );
 }
