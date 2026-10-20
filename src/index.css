@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --default-font-family: 'Rubik', sans-serif;
+  --default-font-family: "Rubik", sans-serif;
 
   --color-gray-100: #f5f6fa;
   --color-gray-200: #e9ebf0;
