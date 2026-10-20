@@ -1,0 +1,38 @@
+import { useState } from "react";
+import { useComments } from "../contexts/CommentsContext";
+import type { BaseComment } from "../models/comment.interface";
+
+type CommentMode = "idle" | "edit" | "reply" | "delete";
+
+export function useCommentActions(comment: BaseComment, parentId?: number) {
+  const { dispatch } = useComments();
+  const [mode, setMode] = useState<CommentMode>("idle");
+
+  const resetMode = () => setMode("idle");
+
+  const handleVote = (delta: 1 | -1) =>
+    dispatch({ type: "vote", payload: { id: comment.id, parentId, delta } });
+
+  const handleEdit = (content: string) => {
+    dispatch({ type: "edit", payload: { id: comment.id, parentId, content } });
+    resetMode();
+  };
+
+  const handleDeleteConfirmed = () => {
+    dispatch({ type: "delete", payload: { id: comment.id, parentId } });
+    resetMode();
+  };
+
+  const handleReplySubmitted = () => {
+    resetMode();
+  };
+
+  return {
+    mode,
+    setMode,
+    handleVote,
+    handleEdit,
+    handleDeleteConfirmed,
+    handleReplySubmitted,
+  };
+}

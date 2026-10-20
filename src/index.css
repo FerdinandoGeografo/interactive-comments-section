@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+@theme {
+  --default-font-family: 'Rubik', sans-serif;
+
+  --color-gray-100: #f5f6fa;
+  --color-gray-200: #e9ebf0;
+  --color-gray-600: #67727e;
+  --color-gray-700: #334253;
+  --color-blue-200: #c5c6ef;
+  --color-blue-500: #5357b6;
+  --color-red-200: #ffb8bb;
+  --color-red-500: #ed6368;
+}
+
+@keyframes dialog-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-1rem) scale(.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes dialog-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-1rem) scale(.9);
+  }
+}
+
+@keyframes backdrop-enter {
+  from { background-color: transparent; }
+  to   { background-color: rgba(0, 0, 0, 0.5); }
+}
+
+@keyframes backdrop-exit {
+  from { background-color: rgba(0, 0, 0, 0.5); }
+  to   { background-color: transparent; }
+}
+
+dialog[open] {
+  animation: dialog-enter 0.25s ease-out forwards;
+}
+
+dialog[open]::backdrop {
+  animation: backdrop-enter 0.25s ease-out forwards;
+}
+
+dialog.is-closing {
+  animation: dialog-exit 0.2s ease-in forwards;
+}
+
+dialog.is-closing::backdrop {
+  animation: backdrop-exit 0.2s ease-in forwards;
+}
