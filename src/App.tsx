@@ -22,7 +22,7 @@ export default function App() {
         </h1>
 
         {comments.length > 0 && (
-          <ul className="contents">
+          <ul className="flex flex-col gap-4 sm:gap-5">
             {sortRootComments(comments).map((comment) => (
               <Comment
                 entry={comment}

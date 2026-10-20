@@ -45,7 +45,7 @@ export default function Comment({ entry, target }: CommentProps) {
   }
 
   return (
-    <li className="contents">
+    <li className="flex flex-col gap-4 sm:gap-5">
       <article className="grid grid-cols-[auto_1fr] grid-rows-[auto_auto_auto] items-center gap-4 rounded-lg bg-white p-4 sm:grid-cols-[40px_auto_auto] sm:grid-rows-[auto_auto] sm:items-start sm:gap-x-6 sm:gap-y-3.75 sm:p-6">
         <CommentHeader user={user} createdAt={createdAt} isAuthor={isAuthor} />
 

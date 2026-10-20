@@ -8,16 +8,14 @@ interface ReplyListProps {
 
 export default function ReplyList({ replies, threadId }: ReplyListProps) {
   return (
-    <div className="flex flex-col gap-4 border-l border-l-gray-200 pl-4 sm:ml-10.75 sm:gap-5 sm:pl-10.75">
-      <ul className="contents">
-        {replies.map((reply) => (
-          <Comment
-            entry={reply}
-            target={{ kind: "reply", threadId, id: reply.id }}
-            key={reply.id}
-          />
-        ))}
-      </ul>
-    </div>
+    <ul className="flex flex-col gap-4 border-l border-l-gray-200 pl-4 sm:ml-10.75 sm:gap-5 sm:pl-10.75">
+      {replies.map((reply) => (
+        <Comment
+          entry={reply}
+          target={{ kind: "reply", threadId, id: reply.id }}
+          key={reply.id}
+        />
+      ))}
+    </ul>
   );
 }
