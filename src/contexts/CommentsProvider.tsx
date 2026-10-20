@@ -1,11 +1,13 @@
 import { useReducer, type ReactNode } from "react";
 import { CommentsContext } from "@/contexts/comments-context";
-import { commentsReducer, initialState } from "@/contexts/commentsReducer";
+import { commentsReducer } from "@/contexts/commentsReducer";
+import { createInitialState } from "@/data/seed";
 
 export function CommentsProvider({ children }: { children: ReactNode }) {
   const [{ currentUser, comments }, dispatch] = useReducer(
     commentsReducer,
-    initialState,
+    undefined,
+    createInitialState,
   );
 
   return (

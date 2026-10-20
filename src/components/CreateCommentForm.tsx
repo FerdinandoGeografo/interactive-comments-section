@@ -1,23 +1,24 @@
 import { useState } from "react";
-import type { Comment, Reply } from "@/models/comment.interface";
+import type { CommentTarget } from "@/models/comment.interface";
 import Avatar from "@/components/Avatar";
 import CommentTextarea from "@/components/CommentTextarea";
 import { Button } from "@/components/ui/button";
 import { useComments } from "@/hooks/useComments";
+import { createId } from "@/lib/id";
 
 interface CreateCommentFormProps {
-  parentId?: number;
+  target?: CommentTarget;
   replyingTo?: string;
   onSubmitted?: () => void;
 }
 
 export default function CreateCommentForm({
-  parentId,
+  target,
   replyingTo,
   onSubmitted,
 }: CreateCommentFormProps) {
   const prefix = replyingTo ? `@${replyingTo} ` : "";
-  const submitLabel = parentId !== undefined ? "reply" : "send";
+  const submitLabel = target ? "reply" : "send";
 
   const { currentUser, dispatch } = useComments();
   const [content, setContent] = useState(prefix);
@@ -28,20 +29,11 @@ export default function CreateCommentForm({
     const cleanContent = content.replace(prefix, "").trim().slice(0, 1000);
     if (!cleanContent) return;
 
-    const base = {
-      id: Date.now(),
-      content: cleanContent,
-      user: currentUser,
-      createdAt: "now",
-      score: 0,
-    };
-
-    if (parentId !== undefined) {
-      const reply: Reply = { ...base, replyingTo: replyingTo! };
-      dispatch({ type: "createReply", payload: { reply, parentId } });
+    const entry = { id: createId(), content: cleanContent, createdAt: "now" };
+    if (target) {
+      dispatch({ type: "createReply", payload: { ...entry, target } });
     } else {
-      const comment: Comment = { ...base, replies: [] };
-      dispatch({ type: "createComment", payload: { comment } });
+      dispatch({ type: "createComment", payload: entry });
     }
 
     setContent(prefix);

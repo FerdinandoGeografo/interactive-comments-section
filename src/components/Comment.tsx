@@ -1,4 +1,4 @@
-import type { BaseComment } from "@/models/comment.interface";
+import type { CommentEntry, CommentTarget } from "@/models/comment.interface";
 
 import CommentHeader from "@/components/CommentHeader";
 import CommentContent from "@/components/CommentContent";
@@ -11,14 +11,13 @@ import DeleteCommentDialog from "@/components/DeleteCommentDialog";
 
 import { useCommentActions } from "@/hooks/useCommentActions";
 import { useComments } from "@/hooks/useComments";
-import { isComment, isReply } from "@/utils/comment.utils";
 
 interface CommentProps {
-  comment: BaseComment;
-  parentId?: number;
+  entry: CommentEntry;
+  target: CommentTarget;
 }
 
-export default function Comment({ comment, parentId }: CommentProps) {
+export default function Comment({ entry, target }: CommentProps) {
   const { currentUser } = useComments();
   const {
     mode,
@@ -29,14 +28,12 @@ export default function Comment({ comment, parentId }: CommentProps) {
     handleEdit,
     handleDeleteConfirmed,
     handleReplySubmitted,
-  } = useCommentActions(comment, parentId);
+  } = useCommentActions(target);
 
-  const { content, user, score, createdAt } = comment;
+  const { content, user, score, createdAt } = entry;
 
-  const isTopLevel = parentId === undefined;
   const isAuthor = user.username === currentUser.username;
-  const replies = isComment(comment) ? comment.replies : [];
-  const replyingTo = isReply(comment) ? comment.replyingTo : "";
+  const replyingTo = entry.kind === "reply" ? entry.replyingTo : "";
 
   return (
     <li className="contents">
@@ -45,7 +42,7 @@ export default function Comment({ comment, parentId }: CommentProps) {
 
         <div className="col-span-full sm:col-start-2">
           {mode === "edit" ? (
-            <EditCommentForm comment={comment} onSubmit={handleEdit} />
+            <EditCommentForm entry={entry} onSubmit={handleEdit} />
           ) : (
             <CommentContent content={content} replyingTo={replyingTo} />
           )}
@@ -64,27 +61,27 @@ export default function Comment({ comment, parentId }: CommentProps) {
           onReply={() => setMode("reply")}
         />
       </article>
-      {isTopLevel && (
+      {entry.kind === "comment" && (
         <>
-          {replies.length > 0 && (
+          {entry.replies.length > 0 && (
             <ReplyList
-              replies={replies}
-              parentId={comment.id}
+              replies={entry.replies}
+              threadId={entry.id}
               replyForm={
                 mode === "reply" ? (
                   <CreateCommentForm
-                    parentId={comment.id}
-                    replyingTo={comment.user.username}
+                    target={target}
+                    replyingTo={user.username}
                     onSubmitted={() => handleReplySubmitted}
                   />
                 ) : null
               }
             />
           )}
-          {replies.length === 0 && mode === "reply" && (
+          {entry.replies.length === 0 && mode === "reply" && (
             <CreateCommentForm
-              parentId={comment.id}
-              replyingTo={comment.user.username}
+              target={target}
+              replyingTo={user.username}
               onSubmitted={handleReplySubmitted}
             />
           )}

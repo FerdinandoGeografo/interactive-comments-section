@@ -16,7 +16,11 @@ export default function App() {
         {comments.length > 0 && (
           <ul className="contents">
             {comments.map((comment) => (
-              <Comment comment={comment} key={comment.id} />
+              <Comment
+                entry={comment}
+                target={{ kind: "comment", id: comment.id }}
+                key={comment.id}
+              />
             ))}
           </ul>
         )}

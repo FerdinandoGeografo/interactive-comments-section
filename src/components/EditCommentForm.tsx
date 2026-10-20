@@ -1,21 +1,20 @@
 import { useState } from "react";
 import CommentTextarea from "@/components/CommentTextarea";
 import { Button } from "@/components/ui/button";
-import type { BaseComment } from "@/models/comment.interface";
-import { isReply } from "@/utils/comment.utils";
+import type { CommentEntry } from "@/models/comment.interface";
 
 interface EditCommentFormProps {
-  comment: BaseComment;
+  entry: CommentEntry;
   onSubmit: (content: string) => void;
 }
 
 export default function EditCommentForm({
-  comment,
+  entry,
   onSubmit,
 }: EditCommentFormProps) {
-  const replyingTo = isReply(comment) ? comment.replyingTo : "";
+  const replyingTo = entry.kind === "reply" ? entry.replyingTo : "";
   const prefix = replyingTo ? `@${replyingTo} ` : "";
-  const [content, setContent] = useState(`${prefix}${comment.content}`);
+  const [content, setContent] = useState(`${prefix}${entry.content}`);
 
   function handleSubmit(e: React.SubmitEvent) {
     e.preventDefault();
