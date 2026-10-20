@@ -2,11 +2,13 @@ import { useState } from "react";
 import { useComments } from "@/hooks/useComments";
 import type { BaseComment } from "@/models/comment.interface";
 
-type CommentMode = "idle" | "edit" | "reply" | "delete";
+type CommentMode = "idle" | "edit" | "reply";
 
 export function useCommentActions(comment: BaseComment, parentId?: number) {
   const { dispatch } = useComments();
   const [mode, setMode] = useState<CommentMode>("idle");
+  // Kept apart from `mode` so cancelling a deletion preserves an open edit draft.
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   const resetMode = () => setMode("idle");
 
@@ -18,10 +20,8 @@ export function useCommentActions(comment: BaseComment, parentId?: number) {
     resetMode();
   };
 
-  const handleDeleteConfirmed = () => {
+  const handleDeleteConfirmed = () =>
     dispatch({ type: "delete", payload: { id: comment.id, parentId } });
-    resetMode();
-  };
 
   const handleReplySubmitted = () => {
     resetMode();
@@ -30,6 +30,8 @@ export function useCommentActions(comment: BaseComment, parentId?: number) {
   return {
     mode,
     setMode,
+    isDeleteOpen,
+    setIsDeleteOpen,
     handleVote,
     handleEdit,
     handleDeleteConfirmed,

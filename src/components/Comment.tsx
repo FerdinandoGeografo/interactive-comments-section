@@ -1,4 +1,4 @@
-import type { BaseComment, Comment } from "@/models/comment.interface";
+import type { BaseComment } from "@/models/comment.interface";
 
 import CommentHeader from "@/components/CommentHeader";
 import CommentContent from "@/components/CommentContent";
@@ -7,11 +7,11 @@ import EditCommentForm from "@/components/EditCommentForm";
 import CommentActions from "@/components/CommentActions";
 import CreateCommentForm from "@/components/CreateCommentForm";
 import ReplyList from "@/components/ReplyList";
+import DeleteCommentDialog from "@/components/DeleteCommentDialog";
 
 import { useCommentActions } from "@/hooks/useCommentActions";
 import { useComments } from "@/hooks/useComments";
 import { isComment, isReply } from "@/utils/comment.utils";
-import DeleteCommentDialog from "@/components/DeleteCommentDialog";
 
 interface CommentProps {
   comment: BaseComment;
@@ -23,6 +23,8 @@ export default function Comment({ comment, parentId }: CommentProps) {
   const {
     mode,
     setMode,
+    isDeleteOpen,
+    setIsDeleteOpen,
     handleVote,
     handleEdit,
     handleDeleteConfirmed,
@@ -57,7 +59,7 @@ export default function Comment({ comment, parentId }: CommentProps) {
 
         <CommentActions
           isAuthor={isAuthor}
-          onDelete={() => setMode("delete")}
+          onDelete={() => setIsDeleteOpen(true)}
           onEdit={() => setMode("edit")}
           onReply={() => setMode("reply")}
         />
@@ -89,9 +91,9 @@ export default function Comment({ comment, parentId }: CommentProps) {
         </>
       )}
       <DeleteCommentDialog
-        isOpen={mode === "delete"}
+        open={isDeleteOpen}
+        onOpenChange={setIsDeleteOpen}
         onConfirm={handleDeleteConfirmed}
-        onCancel={() => setMode("idle")}
       />
     </li>
   );
