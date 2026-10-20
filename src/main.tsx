@@ -5,17 +5,22 @@ import App from "@/App.tsx";
 import { CommentsProvider } from "@/contexts/CommentsProvider.tsx";
 import { ActiveFormProvider } from "@/contexts/ActiveFormProvider.tsx";
 import { NowProvider } from "@/contexts/NowProvider.tsx";
+import { MotionProvider } from "@/components/MotionProvider.tsx";
 import { loadPersistedState } from "@/data/persistence";
+import { applyAnimationMode } from "@/lib/motion";
 
 // Once per page load, outside rendering: recovery may write a backup.
 const persistence = loadPersistedState();
+applyAnimationMode();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <CommentsProvider persistence={persistence}>
       <ActiveFormProvider>
         <NowProvider>
-          <App />
+          <MotionProvider>
+            <App />
+          </MotionProvider>
         </NowProvider>
       </ActiveFormProvider>
     </CommentsProvider>
