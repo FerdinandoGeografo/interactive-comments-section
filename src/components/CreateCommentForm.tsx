@@ -1,14 +1,10 @@
-import { useState } from "react";
 import Avatar from "@/components/Avatar";
 import CommentTextarea from "@/components/CommentTextarea";
 import { Button } from "@/components/ui/button";
+import { useCommentDraft } from "@/hooks/useCommentDraft";
 import { useComments } from "@/hooks/useComments";
 import { cn } from "@/lib/utils";
-import {
-  isValidContent,
-  mentionPrefix,
-  normalizeContent,
-} from "@/utils/comment.utils";
+import { mentionPrefix } from "@/utils/comment.utils";
 
 interface CreateCommentFormProps {
   label: string;
@@ -30,16 +26,7 @@ export default function CreateCommentForm({
   onCancel,
 }: CreateCommentFormProps) {
   const { currentUser } = useComments();
-  const [content, setContent] = useState("");
-  const canSubmit = isValidContent(content);
-
-  function handleSubmit(e: React.SubmitEvent) {
-    e.preventDefault();
-    if (!canSubmit) return;
-
-    onSubmit(normalizeContent(content));
-    setContent("");
-  }
+  const { content, setContent, canSubmit, handleSubmit } = useCommentDraft();
 
   return (
     <form
@@ -47,7 +34,10 @@ export default function CreateCommentForm({
         "flex flex-wrap items-center justify-between gap-4 rounded-lg bg-white px-4 pt-4 pb-3.25 sm:items-start sm:px-6 sm:pt-6 sm:pb-6",
         className,
       )}
-      onSubmit={handleSubmit}
+      onSubmit={handleSubmit((newContent) => {
+        onSubmit(newContent);
+        setContent("");
+      })}
     >
       <Avatar user={currentUser} size="large" className="sm:mt-1" />
 
