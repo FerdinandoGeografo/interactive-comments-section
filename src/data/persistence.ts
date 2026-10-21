@@ -1,186 +1,27 @@
 import type { CommentsState } from "@/contexts/commentsReducer";
 import { createInitialState } from "@/data/seed";
-import type { Reply, ThreadComment, Vote } from "@/models/comment.interface";
-import type { User } from "@/models/user.interface";
-import { isValidContent, normalizeContent } from "@/utils/comment.utils";
 
-export const STORAGE_KEY = "interactive-comments:state";
-export const BACKUP_KEY = "interactive-comments:backup";
-const SCHEMA_VERSION = 1;
+const STORAGE_KEY = "interactive-comments:state";
+const STORAGE_VERSION = 1;
 
-type StorageLike = Pick<Storage, "getItem" | "setItem">;
-
-export function getStorage(): StorageLike | null {
+// Missing, unreadable or outdated data starts again from the seed.
+export function loadState(now = Date.now()): CommentsState {
   try {
-    return window.localStorage;
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "null");
+    if (stored?.version === STORAGE_VERSION) return stored.state;
   } catch {
-    return null;
+    // Invalid JSON or blocked storage.
   }
+  return createInitialState(now);
 }
 
-type UnknownRecord = Record<string, unknown>;
-
-function isRecord(value: unknown): value is UnknownRecord {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function isString(value: unknown): value is string {
-  return typeof value === "string";
-}
-
-function isIsoTimestamp(value: unknown): value is string {
-  return (
-    isString(value) &&
-    !Number.isNaN(Date.parse(value)) &&
-    new Date(value).toISOString() === value
-  );
-}
-
-function isVote(value: unknown): value is Vote {
-  return value === -1 || value === 0 || value === 1;
-}
-
-function isUser(value: unknown): value is User {
-  return (
-    isRecord(value) &&
-    isString(value.username) &&
-    isRecord(value.image) &&
-    isString(value.image.png) &&
-    isString(value.image.webp)
-  );
-}
-
-function hasEntryFields(value: UnknownRecord) {
-  return (
-    isString(value.id) &&
-    isString(value.content) &&
-    isValidContent(value.content) &&
-    value.content === normalizeContent(value.content) &&
-    isIsoTimestamp(value.createdAt) &&
-    Number.isInteger(value.score) &&
-    isVote(value.currentUserVote) &&
-    isUser(value.user)
-  );
-}
-
-function isReply(value: unknown): value is Reply {
-  return (
-    isRecord(value) &&
-    value.kind === "reply" &&
-    isString(value.replyingTo) &&
-    hasEntryFields(value)
-  );
-}
-
-function isThreadComment(value: unknown): value is ThreadComment {
-  return (
-    isRecord(value) &&
-    value.kind === "comment" &&
-    hasEntryFields(value) &&
-    Array.isArray(value.replies) &&
-    value.replies.every(isReply)
-  );
-}
-
-export function parseStoredState(value: unknown): CommentsState | null {
-  if (!isRecord(value) || value.version !== SCHEMA_VERSION) return null;
-
-  const { state } = value;
-  if (
-    !isRecord(state) ||
-    !isUser(state.currentUser) ||
-    !Array.isArray(state.comments) ||
-    !state.comments.every(isThreadComment)
-  )
-    return null;
-
-  const comments: ThreadComment[] = state.comments;
-  const ids = comments.flatMap((comment) => [
-    comment.id,
-    ...comment.replies.map((reply) => reply.id),
-  ]);
-  if (new Set(ids).size !== ids.length) return null;
-
-  return { currentUser: state.currentUser, comments };
-}
-
-function parseJson(raw: string): unknown {
+export function saveState(state: CommentsState) {
   try {
-    return JSON.parse(raw);
-  } catch {
-    return undefined;
-  }
-}
-
-export type LoadStatus =
-  | "missing"
-  | "restored"
-  | "recovered"
-  | "backupFailed"
-  | "readFailed"
-  | "unavailable";
-
-export interface PersistedState {
-  status: LoadStatus;
-  state: CommentsState;
-  save: (state: CommentsState) => void;
-}
-
-export function loadPersistedState(
-  storage = getStorage(),
-  now = Date.now(),
-): PersistedState {
-  const save = (state: CommentsState) => saveState(state, storage);
-  const inMemory = (status: LoadStatus): PersistedState => ({
-    status,
-    state: createInitialState(now),
-    save: () => {},
-  });
-
-  if (!storage) {
-    console.warn("Storage is unavailable; comments will not be saved.");
-    return inMemory("unavailable");
-  }
-
-  let raw: string | null;
-  try {
-    raw = storage.getItem(STORAGE_KEY);
-  } catch (error) {
-    console.warn(
-      "Saved comments could not be read; changes will not be saved.",
-      error,
-    );
-    return inMemory("readFailed");
-  }
-  if (raw === null)
-    return { status: "missing", state: createInitialState(now), save };
-
-  const state = parseStoredState(parseJson(raw));
-  if (state) return { status: "restored", state, save };
-
-  try {
-    storage.setItem(BACKUP_KEY, raw);
-  } catch (error) {
-    console.warn(
-      "Saved comments were not recognized and could not be backed up; they are left untouched and changes will not be saved.",
-      error,
-    );
-    return inMemory("backupFailed");
-  }
-  console.warn(
-    `Saved comments were not recognized and have been moved to "${BACKUP_KEY}"; starting from the sample data.`,
-  );
-  return { status: "recovered", state: createInitialState(now), save };
-}
-
-export function saveState(state: CommentsState, storage = getStorage()) {
-  if (!storage) return;
-  try {
-    storage.setItem(
+    localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ version: SCHEMA_VERSION, state }),
+      JSON.stringify({ version: STORAGE_VERSION, state }),
     );
-  } catch (error) {
-    console.warn("Comments could not be saved.", error);
+  } catch {
+    // Blocked storage or full quota: the app keeps working in memory.
   }
 }
