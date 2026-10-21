@@ -6,9 +6,6 @@ import { CommentsProvider } from "@/contexts/CommentsProvider.tsx";
 import { ActiveFormProvider } from "@/contexts/ActiveFormProvider.tsx";
 import { NowProvider } from "@/contexts/NowProvider.tsx";
 import { MotionProvider } from "@/components/MotionProvider.tsx";
-import { applyAnimationMode } from "@/lib/motion";
-
-applyAnimationMode();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

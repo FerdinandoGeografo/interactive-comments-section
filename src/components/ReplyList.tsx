@@ -1,9 +1,9 @@
 import type { Ref } from "react";
-import { AnimatePresence } from "motion/react";
-import * as m from "motion/react-m";
+import { AnimatePresence, motion } from "motion/react";
 import type { Reply } from "@/models/comment.interface";
 import Comment from "@/components/Comment";
-import { entryMotion, transitions } from "@/lib/motion";
+import { layoutSpring } from "@/lib/motion/transitions";
+import { entryMotion } from "@/lib/motion/variants";
 
 interface ReplyListProps {
   replies: Reply[];
@@ -13,11 +13,11 @@ interface ReplyListProps {
 
 export default function ReplyList({ replies, threadId, ref }: ReplyListProps) {
   return (
-    <m.ul
+    <motion.ul
       ref={ref}
       layout="position"
       {...entryMotion}
-      transition={{ layout: transitions.layout }}
+      transition={{ layout: layoutSpring }}
       className="relative flex flex-col gap-4 border-l border-l-gray-200 pl-4 sm:ml-10.75 sm:gap-5 sm:pl-10.75"
     >
       <AnimatePresence initial={false} mode="popLayout" propagate>
@@ -29,6 +29,6 @@ export default function ReplyList({ replies, threadId, ref }: ReplyListProps) {
           />
         ))}
       </AnimatePresence>
-    </m.ul>
+    </motion.ul>
   );
 }

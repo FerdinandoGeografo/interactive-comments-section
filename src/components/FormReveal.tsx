@@ -1,8 +1,7 @@
 import type { ReactNode, Ref } from "react";
-import { useIsPresent, useReducedMotionConfig } from "motion/react";
-import * as m from "motion/react-m";
+import { motion, useIsPresent, useReducedMotionConfig } from "motion/react";
 import { cn } from "@/lib/utils";
-import { transitions } from "@/lib/motion";
+import { reveal } from "@/lib/motion/transitions";
 
 interface FormRevealProps {
   className?: string;
@@ -22,15 +21,15 @@ export default function FormReveal({
     : { opacity: 0, height: 0 };
 
   return (
-    <m.div
+    <motion.div
       ref={ref}
       initial={collapsed}
-      animate={{ opacity: 1, height: "auto", transition: transitions.reveal }}
-      exit={{ ...collapsed, transition: transitions.reveal }}
+      animate={{ opacity: 1, height: "auto", transition: reveal }}
+      exit={{ ...collapsed, transition: reveal }}
       inert={!isPresent}
       className={cn("flex flex-col overflow-clip", className)}
     >
       {children}
-    </m.div>
+    </motion.div>
   );
 }

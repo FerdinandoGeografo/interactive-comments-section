@@ -1,15 +1,9 @@
 import { useState } from "react";
-import { useReducedMotionConfig } from "motion/react";
-import * as m from "motion/react-m";
+import { motion, useReducedMotionConfig } from "motion/react";
 import { Button } from "@/components/ui/button";
 import type { Vote } from "@/models/comment.interface";
 import { cn } from "@/lib/utils";
-import { transitions } from "@/lib/motion";
-
-// Twin variants replay the pulse on each vote without remounting the live region.
-const pulse = { scale: [1, 1.25, 1], transition: transitions.pulse };
-const scoreVariants = { even: pulse, odd: pulse };
-const tap = { scale: 0.85 };
+import { scoreVariants, votePress } from "@/lib/motion/variants";
 
 interface ScoreCounterProps {
   score: number;
@@ -36,7 +30,9 @@ export default function ScoreCounter({
 
   // Disabled buttons keep pointer events; reduced motion would jump to the pressed scale.
   const voteButton = (
-    <m.button whileTap={disabled || shouldReduceMotion ? undefined : tap} />
+    <motion.button
+      whileTap={disabled || shouldReduceMotion ? undefined : votePress}
+    />
   );
 
   return (
@@ -59,7 +55,7 @@ export default function ScoreCounter({
           <use href="/icons.svg#plus"></use>
         </svg>
       </Button>
-      <m.span
+      <motion.span
         aria-live="polite"
         variants={scoreVariants}
         initial={false}
@@ -70,7 +66,7 @@ export default function ScoreCounter({
         )}
       >
         {score}
-      </m.span>
+      </motion.span>
       <Button
         variant="vote"
         size="icon"

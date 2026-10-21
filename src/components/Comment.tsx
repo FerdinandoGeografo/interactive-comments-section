@@ -1,6 +1,5 @@
 import { useRef, type Ref } from "react";
-import { AnimatePresence, useIsPresent } from "motion/react";
-import * as m from "motion/react-m";
+import { AnimatePresence, motion, useIsPresent } from "motion/react";
 import type { CommentEntry, CommentTarget } from "@/models/comment.interface";
 
 import CommentHeader from "@/components/CommentHeader";
@@ -14,7 +13,8 @@ import DeleteCommentDialog from "@/components/DeleteCommentDialog";
 import FormReveal from "@/components/FormReveal";
 
 import { useCommentActions } from "@/hooks/useCommentActions";
-import { entryMotion, swapMotion, transitions } from "@/lib/motion";
+import { layoutSpring } from "@/lib/motion/transitions";
+import { entryMotion, swapMotion } from "@/lib/motion/variants";
 
 interface CommentProps {
   entry: CommentEntry;
@@ -51,11 +51,11 @@ export default function Comment({ entry, target, ref }: CommentProps) {
   }
 
   return (
-    <m.li
+    <motion.li
       ref={ref}
       layout="position"
       {...entryMotion}
-      transition={{ layout: transitions.layout }}
+      transition={{ layout: layoutSpring }}
       inert={!isPresent}
       // focus-within:z-10 keeps an open form above siblings sliding past it.
       className="relative flex flex-col gap-4 focus-within:z-10 sm:gap-5"
@@ -66,7 +66,7 @@ export default function Comment({ entry, target, ref }: CommentProps) {
         <div className="relative col-span-full sm:col-start-2">
           <AnimatePresence initial={false} mode="popLayout">
             {isEditing ? (
-              <m.div key="edit" {...swapMotion}>
+              <motion.div key="edit" {...swapMotion}>
                 <EditCommentForm
                   entry={entry}
                   onSubmit={(newContent) => {
@@ -75,11 +75,11 @@ export default function Comment({ entry, target, ref }: CommentProps) {
                   }}
                   onCancel={() => closeAndFocus(editTriggerRef.current)}
                 />
-              </m.div>
+              </motion.div>
             ) : (
-              <m.div key="content" {...swapMotion}>
+              <motion.div key="content" {...swapMotion}>
                 <CommentContent content={content} replyingTo={replyingTo} />
-              </m.div>
+              </motion.div>
             )}
           </AnimatePresence>
         </div>
@@ -139,6 +139,6 @@ export default function Comment({ entry, target, ref }: CommentProps) {
         onOpenChange={setIsDeleteOpen}
         onConfirm={confirmDelete}
       />
-    </m.li>
+    </motion.li>
   );
 }

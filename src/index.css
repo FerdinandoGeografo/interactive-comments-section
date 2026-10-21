@@ -12,12 +12,3 @@
   --color-red-200: #ffb8bb;
   --color-red-500: #ed6368;
 }
-
-/* Static build (see src/lib/motion.ts): no CSS motion either. Without
-   transitions Base UI unmounts the dialog at once. */
-[data-animation="static"] *,
-[data-animation="static"] *::before,
-[data-animation="static"] *::after {
-  transition: none !important;
-  animation: none !important;
-}

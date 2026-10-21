@@ -1,11 +1,11 @@
-import { AnimatePresence, LayoutGroup } from "motion/react";
-import * as m from "motion/react-m";
+import { AnimatePresence, LayoutGroup, motion } from "motion/react";
 import CreateCommentForm from "@/components/CreateCommentForm";
 import Comment from "@/components/Comment";
 import { useComments } from "@/hooks/useComments";
 import { createId } from "@/lib/id";
 import { COMMENTS_HEADING_ID } from "@/lib/focus";
-import { entryMotion, transitions } from "@/lib/motion";
+import { layoutSpring } from "@/lib/motion/transitions";
+import { entryMotion } from "@/lib/motion/variants";
 import { sortRootComments } from "@/utils/comment.utils";
 
 export default function App() {
@@ -27,7 +27,7 @@ export default function App() {
         <LayoutGroup>
           <AnimatePresence initial={false}>
             {comments.length > 0 && (
-              <m.ul
+              <motion.ul
                 key="comments"
                 {...entryMotion}
                 className="relative flex flex-col gap-4 sm:gap-5"
@@ -41,17 +41,17 @@ export default function App() {
                     />
                   ))}
                 </AnimatePresence>
-              </m.ul>
+              </motion.ul>
             )}
           </AnimatePresence>
 
-          <m.div layout="position" transition={{ layout: transitions.layout }}>
+          <motion.div layout="position" transition={{ layout: layoutSpring }}>
             <CreateCommentForm
               label="Add a comment"
               submitLabel="send"
               onSubmit={createComment}
             />
-          </m.div>
+          </motion.div>
         </LayoutGroup>
       </main>
     </div>
