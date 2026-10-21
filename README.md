@@ -85,11 +85,12 @@ This solution also makes some choices that the brief leaves open:
 
 - **Rules in the reducer**: IDs and timestamps come from the caller, while author, score and vote are set by the reducer. An action that breaks a rule (editing someone else's reply, voting on your own comment, empty content) returns the previous state.
 - **Ordering**: roots are sorted only for display, so ties keep their original order: `comments.toSorted((a, b) => b.score - a.score)`.
-- **Persistence**: the first visit saves the data from `data.json`, and every change is saved after it. Missing, invalid or outdated data starts again from the original data:
+- **Persistence**: the first visit saves the data from `data.json`, and every change is saved after it. Before stored data is used, a structural check confirms the fields the page reads: the current user, and for every comment and reply its id, content, valid date, score, vote and author. Missing, invalid, outdated or incomplete data starts again from the original data, while a valid empty list stays empty:
 
   ```ts
   const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "null");
-  if (stored?.version === STORAGE_VERSION) return stored.state;
+  if (stored?.version === STORAGE_VERSION && isCommentsState(stored.state))
+    return stored.state;
   ```
 
 - **Time**: the seed labels become ISO timestamps on the first load. A single shared clock ticks every minute and `Intl.RelativeTimeFormat` formats the labels, so a 9-day-old reply reads "1 week ago".
