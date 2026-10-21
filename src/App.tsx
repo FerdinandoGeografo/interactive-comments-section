@@ -24,8 +24,6 @@ export default function App() {
           Comments
         </h1>
 
-        {/* Entries that change size or order move everything below them; the
-            group lets components that did not re-render animate too. */}
         <LayoutGroup>
           <AnimatePresence initial={false}>
             {comments.length > 0 && (
@@ -34,8 +32,6 @@ export default function App() {
                 {...entryMotion}
                 className="relative flex flex-col gap-4 sm:gap-5"
               >
-                {/* popLayout takes deleted entries out of the flow at once,
-                    so the entries below slide up while they fade out. */}
                 <AnimatePresence initial={false} mode="popLayout" propagate>
                   {sortRootComments(comments).map((comment) => (
                     <Comment

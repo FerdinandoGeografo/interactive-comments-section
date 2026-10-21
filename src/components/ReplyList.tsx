@@ -20,8 +20,6 @@ export default function ReplyList({ replies, threadId, ref }: ReplyListProps) {
       transition={{ layout: transitions.layout }}
       className="relative flex flex-col gap-4 border-l border-l-gray-200 pl-4 sm:ml-10.75 sm:gap-5 sm:pl-10.75"
     >
-      {/* The first reply arrives with the list itself; propagate lets the
-          last reply fade out with the list. */}
       <AnimatePresence initial={false} mode="popLayout" propagate>
         {replies.map((reply) => (
           <Comment

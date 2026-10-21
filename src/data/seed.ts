@@ -17,11 +17,8 @@ interface SeedData {
   comments: (SeedEntry & { replies: (SeedEntry & { replyingTo: string })[] })[];
 }
 
-// Type-checked assignment (not a cast) of the bundled challenge dataset.
 const seed: SeedData = data;
 
-// The seed's relative labels ("2 weeks ago") become ISO timestamps relative
-// to the initialization time; they are persisted from then on.
 export function createInitialState(now = Date.now()): CommentsState {
   return {
     currentUser: seed.currentUser,

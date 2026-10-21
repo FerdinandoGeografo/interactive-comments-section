@@ -19,7 +19,6 @@ import { entryMotion, swapMotion, transitions } from "@/lib/motion";
 interface CommentProps {
   entry: CommentEntry;
   target: CommentTarget;
-  /** Set by AnimatePresence (popLayout measures the exiting element). */
   ref?: Ref<HTMLLIElement>;
 }
 
@@ -38,10 +37,7 @@ export default function Comment({ entry, target, ref }: CommentProps) {
     setIsDeleteOpen,
     confirmDelete,
   } = useCommentActions(entry, target);
-  // An entry that is fading out stays in the DOM: inert keeps it out of
-  // focus, pointer and assistive technology so it cannot be used twice.
-  // While siblings slide (layout animations), the entry holding focus stays
-  // on top so a moving sibling never covers an open form.
+  // Exiting entries stay in the DOM while they fade: inert keeps them unusable.
   const isPresent = useIsPresent();
   const replyTriggerRef = useRef<HTMLButtonElement>(null);
   const editTriggerRef = useRef<HTMLButtonElement>(null);
@@ -49,7 +45,6 @@ export default function Comment({ entry, target, ref }: CommentProps) {
   const { content, user, score, createdAt } = entry;
   const replyingTo = entry.kind === "reply" ? entry.replyingTo : "";
 
-  // Closing a form (submit, Escape) returns focus to the button that opened it.
   function closeAndFocus(trigger: HTMLButtonElement | null) {
     closeForm();
     trigger?.focus();
@@ -62,6 +57,7 @@ export default function Comment({ entry, target, ref }: CommentProps) {
       {...entryMotion}
       transition={{ layout: transitions.layout }}
       inert={!isPresent}
+      // focus-within:z-10 keeps an open form above siblings sliding past it.
       className="relative flex flex-col gap-4 focus-within:z-10 sm:gap-5"
     >
       <article className="grid grid-cols-[auto_1fr] grid-rows-[auto_auto_auto] items-center gap-4 rounded-lg bg-white p-4 sm:grid-cols-[40px_auto_auto] sm:grid-rows-[auto_auto] sm:items-start sm:gap-x-6 sm:gap-y-3.75 sm:p-6">
@@ -108,8 +104,7 @@ export default function Comment({ entry, target, ref }: CommentProps) {
         />
       </article>
 
-      {/* The wrapper cancels the list gap so a collapsed form takes no
-          space; the form sits 8px below the entry (active-states.jpg). */}
+      {/* The negative margin cancels the list gap while the form is collapsed. */}
       <AnimatePresence initial={false}>
         {isReplying && (
           <FormReveal key="reply-form" className="-mt-4 sm:-mt-5">

@@ -1,5 +1,3 @@
-// crypto.randomUUID is only exposed in secure contexts (https, localhost);
-// getRandomValues also works over plain http, e.g. `vite --host` on a phone.
 export function createId(): string {
   if (typeof crypto.randomUUID === "function") return crypto.randomUUID();
 

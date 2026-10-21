@@ -6,8 +6,7 @@ import type { Vote } from "@/models/comment.interface";
 import { cn } from "@/lib/utils";
 import { transitions } from "@/lib/motion";
 
-// Each vote switches between two identical variants, which replays the pulse
-// without remounting the live region (its announcement stays the score).
+// Twin variants replay the pulse on each vote without remounting the live region.
 const pulse = { scale: [1, 1.25, 1], transition: transitions.pulse };
 const scoreVariants = { even: pulse, odd: pulse };
 const tap = { scale: 0.85 };
@@ -35,9 +34,7 @@ export default function ScoreCounter({
     onVote(direction);
   }
 
-  // Disabled buttons keep pointer events (cursor-not-allowed), so the press
-  // feedback is only attached to enabled ones. Reduced motion would still
-  // jump to the pressed scale, so it is left out there too.
+  // Disabled buttons keep pointer events; reduced motion would jump to the pressed scale.
   const voteButton = (
     <m.button whileTap={disabled || shouldReduceMotion ? undefined : tap} />
   );

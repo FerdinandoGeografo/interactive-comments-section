@@ -9,7 +9,6 @@ import { MotionProvider } from "@/components/MotionProvider.tsx";
 import { loadPersistedState } from "@/data/persistence";
 import { applyAnimationMode } from "@/lib/motion";
 
-// Once per page load, outside rendering: recovery may write a backup.
 const persistence = loadPersistedState();
 applyAnimationMode();
 

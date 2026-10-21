@@ -7,15 +7,9 @@ import { transitions } from "@/lib/motion";
 interface FormRevealProps {
   className?: string;
   children: ReactNode;
-  /** Set by AnimatePresence. */
   ref?: Ref<HTMLDivElement>;
 }
 
-// Opens and closes a form by growing its height, so the content below moves
-// with it instead of jumping. Use as a direct child of AnimatePresence.
-// overflow: clip (unlike hidden) is not a scroll container, so focusing the
-// textarea on mount cannot scroll the clipped content. Under reduced motion
-// only the opacity changes.
 export default function FormReveal({
   className,
   children,
@@ -33,7 +27,6 @@ export default function FormReveal({
       initial={collapsed}
       animate={{ opacity: 1, height: "auto", transition: transitions.reveal }}
       exit={{ ...collapsed, transition: transitions.reveal }}
-      // A closing form cannot be focused or submitted again.
       inert={!isPresent}
       className={cn("flex flex-col overflow-clip", className)}
     >

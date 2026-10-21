@@ -8,8 +8,6 @@ import { isAuthoredBy } from "@/utils/comment.utils";
 export function useCommentActions(entry: CommentEntry, target: CommentTarget) {
   const { currentUser, dispatch } = useComments();
   const { activeForm, toggleForm, closeForm } = useActiveForm();
-  // Kept apart from the active form so cancelling a deletion preserves an
-  // open edit draft.
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   const isAuthor = isAuthoredBy(entry, currentUser);

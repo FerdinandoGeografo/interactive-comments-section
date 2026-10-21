@@ -23,12 +23,10 @@ interface CommentTextareaProps extends Omit<
   "value" | "defaultValue" | "onChange"
 > {
   label: string;
-  /** Content only; the prefix is rendered in front of it and locked. */
   value: string;
   onValueChange: (content: string) => void;
   prefix?: string;
   onCancel?: () => void;
-  /** className goes to the wrapper; this one to the textarea itself. */
   textareaClassName?: string;
 }
 
@@ -58,8 +56,7 @@ export default function CommentTextarea({
   const isOverLimit = remaining < 0;
   const showCounter = remaining <= COUNTER_THRESHOLD;
 
-  // Native autofocus leaves the caret at the start; place it after the
-  // mention or the text being edited instead.
+  // Native autofocus would leave the caret before the mention.
   useEffect(() => {
     const textarea = textareaRef.current;
     if (!autoFocus || !textarea) return;

@@ -1,7 +1,5 @@
 import { MotionGlobalConfig, type Transition } from "motion/react";
 
-// Shared transitions. Under reduced motion MotionConfig drops transform and
-// layout animations; opacity still fades.
 export const transitions = {
   enter: { type: "spring", visualDuration: 0.3, bounce: 0 },
   exit: { duration: 0.2, ease: "easeOut" },

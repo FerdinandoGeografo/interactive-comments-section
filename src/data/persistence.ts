@@ -10,8 +10,6 @@ const SCHEMA_VERSION = 1;
 
 type StorageLike = Pick<Storage, "getItem" | "setItem">;
 
-// Accessing localStorage itself can throw (blocked storage, sandboxed
-// frames); the app then keeps its state in memory only.
 export function getStorage(): StorageLike | null {
   try {
     return window.localStorage;
@@ -19,9 +17,6 @@ export function getStorage(): StorageLike | null {
     return null;
   }
 }
-
-// Runtime validation of stored data: anything accepted here satisfies the
-// same invariants the reducer enforces.
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -128,15 +123,9 @@ export type LoadStatus =
 export interface PersistedState {
   status: LoadStatus;
   state: CommentsState;
-  /** Saves the state, or does nothing when saving could destroy data. */
   save: (state: CommentsState) => void;
 }
 
-// Reads, validates and recovers the stored state once per page load, before
-// React renders. Missing data starts from the seed. Unrecognized data
-// (invalid JSON, unknown schema or version) is copied to BACKUP_KEY before
-// the seed is used. When the stored value cannot be read or backed up,
-// the app keeps working in memory and never writes over it.
 export function loadPersistedState(
   storage = getStorage(),
   now = Date.now(),

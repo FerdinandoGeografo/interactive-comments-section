@@ -3,8 +3,7 @@ import { NowContext } from "@/contexts/now-context";
 
 const TICK_MS = 60_000;
 
-// One clock for the whole app instead of a timer per comment: it ticks every
-// minute and refreshes when the page becomes visible again.
+// One shared clock instead of a timer per comment.
 export function NowProvider({ children }: { children: ReactNode }) {
   const [now, setNow] = useState(Date.now);
 
