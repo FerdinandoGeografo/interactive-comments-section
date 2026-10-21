@@ -13,9 +13,11 @@ export default function Footer() {
         Coded by{" "}
         <a
           href="https://github.com/FerdinandoGeografo"
+          rel="author"
           className="relative rounded-xs font-medium text-blue-500 outline-offset-2 after:absolute after:inset-x-0 after:bottom-0 after:h-px after:scale-x-0 after:bg-current after:transition-transform after:duration-200 after:ease-out hover:after:scale-x-100 focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:after:scale-x-100 motion-reduce:after:transition-none"
         >
           Ferdinando Geografo
+          <span className="sr-only"> on GitHub</span>
         </a>
       </p>
     </motion.footer>
