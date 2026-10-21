@@ -18,8 +18,8 @@ export default function App() {
     });
 
   return (
-    <div className="flex min-h-screen justify-center overflow-y-auto bg-gray-100">
-      <main className="flex max-w-182.5 flex-1 flex-col gap-4 px-4 py-8 sm:gap-5 sm:px-0 sm:py-16">
+    <div className="flex min-h-screen justify-center overflow-y-auto bg-gray-100 px-4 sm:px-6 md:px-8">
+      <main className="flex max-w-182.5 flex-1 flex-col gap-4 py-8 sm:gap-5 sm:py-12 md:py-16">
         <h1 id={COMMENTS_HEADING_ID} tabIndex={-1} className="sr-only">
           Comments
         </h1>
