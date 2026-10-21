@@ -13,7 +13,7 @@ const buttonVariants = cva(
         destructive: "bg-red-500 text-white uppercase enabled:hover:bg-red-200",
         ghost: "text-blue-500 enabled:hover:text-blue-200",
         "ghost-destructive": "text-red-500 enabled:hover:text-red-200",
-        vote: "rounded-[10px] text-blue-200 focus-visible:ring-offset-0 focus-visible:ring-inset enabled:hover:text-blue-500 disabled:opacity-100",
+        vote: "rounded-score text-blue-200 focus-visible:ring-offset-0 focus-visible:ring-inset enabled:hover:text-blue-500 disabled:opacity-100",
       },
       size: {
         default: "px-7.5 py-3",

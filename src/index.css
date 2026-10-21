@@ -20,6 +20,11 @@
   --color-blue-500: #5357b6;
   --color-red-200: #ffb8bb;
   --color-red-500: #ed6368;
+
+  --radius-score: 0.625rem;
+
+  --text-badge: 0.8125rem;
+  --text-badge--line-height: 0.9375rem;
 }
 
 @layer base {

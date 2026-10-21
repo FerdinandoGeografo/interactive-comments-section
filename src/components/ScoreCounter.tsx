@@ -39,7 +39,7 @@ export default function ScoreCounter({
     <div
       role="group"
       aria-label="Comment score"
-      className="flex h-10 w-25 items-center justify-between overflow-hidden rounded-[10px] bg-gray-100 sm:col-span-[1_2] sm:row-span-full sm:h-25 sm:w-10 sm:flex-col"
+      className="flex h-10 w-25 items-center justify-between overflow-hidden rounded-score bg-gray-100 sm:col-span-[1_2] sm:row-span-full sm:h-25 sm:w-10 sm:flex-col"
     >
       <Button
         variant="vote"

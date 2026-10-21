@@ -24,7 +24,7 @@ export default function CommentHeader({
           {user.username}
         </span>
         {isAuthor && (
-          <span className="flex h-4.75 w-9 items-center justify-center rounded-xs bg-blue-500 text-[13px] leading-3.75 text-white">
+          <span className="flex h-4.75 w-9 items-center justify-center rounded-xs bg-blue-500 text-badge text-white">
             you
           </span>
         )}
