@@ -19,12 +19,12 @@ export default function CommentHeader({
   return (
     <div className="col-span-full flex flex-wrap items-center gap-x-4 gap-y-2 sm:col-start-2 sm:row-start-1">
       <Avatar user={user} />
-      <p className="flex items-center gap-2">
-        <span className="leading-4.75 font-medium text-gray-700">
+      <p className="flex max-w-full min-w-0 items-center gap-2">
+        <span className="min-w-0 leading-4.75 font-medium wrap-anywhere text-gray-700">
           {user.username}
         </span>
         {isAuthor && (
-          <span className="flex h-4.75 w-9 items-center justify-center rounded-xs bg-blue-500 text-badge text-white">
+          <span className="flex h-4.75 w-9 shrink-0 items-center justify-center rounded-xs bg-blue-500 text-badge text-white">
             you
           </span>
         )}

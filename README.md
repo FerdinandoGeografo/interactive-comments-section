@@ -41,9 +41,9 @@ Users should be able to:
 This solution also makes some choices that the brief leaves open:
 
 - **Votes**: one vote per entry. Pressing the active vote removes it, the other arrow replaces it, and your own entries can't be voted on.
-- **Replies to replies** stay in the same thread and start with a locked `@username` mention, which typing, Backspace or a selection can't remove.
+- **Replies to replies** stay in the same thread. The recipient appears above the editor, outside the text you can type or select.
 - **Forms**: only one reply or edit form is open at a time. Escape closes it and focus goes back to the button that opened it.
-- **Content**: empty comments can't be sent, and a counter appears in the last 100 of the 1000 allowed characters.
+- **Content**: empty comments can't be sent. A counter appears in the last 100 of the 1000 allowed characters and announces changes after a pause.
 - **Deleting** a comment also removes its replies. Cancelling keeps everything as it was, including an open edit.
 - **Time**: labels such as "2 weeks ago" refresh every minute, and the exact date shows on hover.
 
@@ -97,14 +97,13 @@ This solution also makes some choices that the brief leaves open:
 
 ### What I learned
 
-#### A mention that can't be removed
+#### Keeping the recipient out of the editor
 
-The reply textarea shows the mention (`@username` and a space) in front of the text, but the state only holds the text. A change that no longer starts with the mention is ignored, so React puts the previous value back. The selection is also moved after the mention:
+Reply and reply-edit forms show “Replying to @username” above the textarea and link it to the field's accessible description. The textarea value is only the comment content. Selection, Backspace, paste and undo work on that value without special prefix handling. The recipient remains in `replyingTo`, and published replies still show their mention:
 
-```ts
-export function applyPrefixedChange(prefix: string, nextValue: string) {
-  return nextValue.startsWith(prefix) ? nextValue.slice(prefix.length) : null;
-}
+```tsx
+<p id={recipientId}>Replying to @{replyingTo}</p>
+<Textarea value={content} aria-describedby={`${recipientId} ${counterId}`} />
 ```
 
 #### Votes as a small state machine
@@ -136,7 +135,7 @@ return (
 
 #### Focus after deleting
 
-The delete button disappears with its comment, so focus can't return to it. The dialog waits for its closing transition (`onOpenChangeComplete`), moves focus to the page heading, and only then removes the comment. Cancel and Escape return focus to the Delete button.
+The delete button disappears with its comment, so focus can't return to it. After the dialog closes and the entry starts leaving, focus moves to Reply or Edit on the next entry in the same list, or the previous one. A lone reply uses its parent comment; an empty list uses “Add a comment”. Cancel and Escape return focus to the Delete button.
 
 #### Feedback without breaking announcements
 
