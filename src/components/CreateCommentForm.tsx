@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { useCommentDraft } from "@/hooks/useCommentDraft";
 import { useComments } from "@/hooks/useComments";
 import { cn } from "@/lib/utils";
-import { mentionPrefix } from "@/utils/comment.utils";
 
 interface CreateCommentFormProps {
   label: string;
@@ -50,7 +49,7 @@ export default function CreateCommentForm({
         label={label}
         className="-order-1 sm:order-0 sm:flex-1"
         placeholder="Add a comment…"
-        prefix={replyingTo ? mentionPrefix(replyingTo) : ""}
+        replyingTo={replyingTo}
         value={content}
         autoFocus={autoFocus}
         onValueChange={(value) => {

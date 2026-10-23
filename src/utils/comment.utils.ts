@@ -38,22 +38,6 @@ export function sortRootComments(comments: readonly ThreadComment[]) {
   return comments.toSorted((a, b) => b.score - a.score);
 }
 
-export function mentionPrefix(username: string) {
-  return `@${username} `;
-}
-
-export function applyPrefixedChange(prefix: string, nextValue: string) {
-  return nextValue.startsWith(prefix) ? nextValue.slice(prefix.length) : null;
-}
-
-export function clampSelection(
-  prefixLength: number,
-  start: number,
-  end: number,
-): [number, number] {
-  return [Math.max(start, prefixLength), Math.max(end, prefixLength)];
-}
-
 export function nextVote(current: Vote, direction: 1 | -1): Vote {
   return current === direction ? 0 : direction;
 }

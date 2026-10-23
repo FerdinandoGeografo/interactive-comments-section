@@ -2,20 +2,13 @@ import {
   useEffect,
   useId,
   useRef,
-  type ChangeEvent,
   type ComponentProps,
   type KeyboardEvent,
-  type SyntheticEvent,
 } from "react";
 import { useIsPresent } from "motion/react";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import {
-  applyPrefixedChange,
-  clampSelection,
-  MAX_CONTENT_LENGTH,
-  normalizeContent,
-} from "@/utils/comment.utils";
+import { MAX_CONTENT_LENGTH, normalizeContent } from "@/utils/comment.utils";
 
 const COUNTER_THRESHOLD = 100;
 
@@ -26,7 +19,7 @@ interface CommentTextareaProps extends Omit<
   label: string;
   value: string;
   onValueChange: (content: string) => void;
-  prefix?: string;
+  replyingTo?: string;
   onCancel?: () => void;
   textareaClassName?: string;
 }
@@ -39,18 +32,20 @@ export default function CommentTextarea({
   label,
   value,
   onValueChange,
-  prefix = "",
+  replyingTo,
   onCancel,
   id,
   rows = 3,
   autoFocus,
   className,
   textareaClassName,
+  "aria-describedby": describedBy,
   ...props
 }: CommentTextareaProps) {
   const generatedId = useId();
   const textareaId = id ?? generatedId;
   const counterId = `${textareaId}-counter`;
+  const recipientId = `${textareaId}-recipient`;
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const previousValueRef = useRef(value);
   const lastAnnouncementRef = useRef("");
@@ -79,19 +74,14 @@ export default function CommentTextarea({
 
     const timer = window.setTimeout(() => {
       const textarea = textareaRef.current;
-      if (
-        !textarea ||
-        textarea.closest("[inert]") ||
-        textarea.value !== prefix + value
-      )
+      if (!textarea || textarea.closest("[inert]") || textarea.value !== value)
         return;
       lastAnnouncementRef.current = counterMessage;
       if (region) region.textContent = counterMessage;
     }, 1000);
     return () => window.clearTimeout(timer);
-  }, [value, prefix, counterMessage, isPresent]);
+  }, [value, counterMessage, isPresent]);
 
-  // Native autofocus would leave the caret before the mention.
   useEffect(() => {
     const textarea = textareaRef.current;
     if (!autoFocus || !textarea) return;
@@ -99,47 +89,44 @@ export default function CommentTextarea({
     textarea.setSelectionRange(textarea.value.length, textarea.value.length);
   }, [autoFocus]);
 
-  function handleChange(e: ChangeEvent<HTMLTextAreaElement>) {
-    // A rejected change leaves state untouched, so React restores the value.
-    const content = applyPrefixedChange(prefix, e.target.value);
-    if (content !== null) onValueChange(content);
-  }
-
-  function handleSelect(e: SyntheticEvent<HTMLTextAreaElement>) {
-    if (!prefix) return;
-    const textarea = e.currentTarget;
-    const { selectionStart, selectionEnd } = textarea;
-    const [start, end] = clampSelection(
-      prefix.length,
-      selectionStart,
-      selectionEnd,
-    );
-    if (start !== selectionStart || end !== selectionEnd)
-      textarea.setSelectionRange(start, end, textarea.selectionDirection);
-  }
-
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
-    if (e.key === "Escape" && onCancel) {
+    if (e.key === "Escape" && !e.nativeEvent.isComposing && onCancel) {
       e.preventDefault();
       onCancel();
     }
   }
 
   return (
-    <div className={cn("relative flex w-full flex-col gap-2", className)}>
+    <div
+      className={cn("relative flex w-full min-w-0 flex-col gap-2", className)}
+    >
       <label htmlFor={textareaId} className="sr-only">
         {label}
       </label>
+      {replyingTo && (
+        <p
+          id={recipientId}
+          className="text-sm leading-5 wrap-anywhere text-gray-600"
+        >
+          Replying to{" "}
+          <span className="font-medium text-blue-500">@{replyingTo}</span>
+        </p>
+      )}
       <Textarea
         ref={textareaRef}
         id={textareaId}
         rows={rows}
         className={textareaClassName}
-        value={prefix + value}
+        value={value}
         aria-invalid={isOverLimit || undefined}
-        aria-describedby={counterId}
-        onChange={handleChange}
-        onSelect={handleSelect}
+        aria-describedby={[
+          replyingTo ? recipientId : undefined,
+          counterId,
+          describedBy,
+        ]
+          .filter(Boolean)
+          .join(" ")}
+        onChange={(event) => onValueChange(event.target.value)}
         onKeyDown={handleKeyDown}
         {...props}
       />

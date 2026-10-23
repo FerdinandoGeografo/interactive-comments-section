@@ -2,7 +2,6 @@ import CommentTextarea from "@/components/CommentTextarea";
 import { Button } from "@/components/ui/button";
 import { useCommentDraft } from "@/hooks/useCommentDraft";
 import type { CommentEntry } from "@/models/comment.interface";
-import { mentionPrefix } from "@/utils/comment.utils";
 
 interface EditCommentFormProps {
   entry: CommentEntry;
@@ -28,9 +27,9 @@ export default function EditCommentForm({
       )}
     >
       <CommentTextarea
-        label="Edit comment"
+        label={entry.kind === "reply" ? "Edit reply" : "Edit comment"}
         textareaClassName="pb-4"
-        prefix={entry.kind === "reply" ? mentionPrefix(entry.replyingTo) : ""}
+        replyingTo={entry.kind === "reply" ? entry.replyingTo : undefined}
         value={content}
         autoFocus
         onValueChange={setContent}
