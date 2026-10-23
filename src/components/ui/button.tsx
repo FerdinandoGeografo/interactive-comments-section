@@ -3,17 +3,20 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-lg leading-6 font-medium whitespace-nowrap outline-hidden transition-colors duration-300 select-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  "inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-lg leading-6 font-medium whitespace-nowrap outline-hidden transition-colors duration-300 select-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 data-disabled:cursor-not-allowed data-disabled:opacity-50 motion-reduce:transition-none [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-blue-500 text-white uppercase enabled:hover:bg-blue-200",
+        default:
+          "bg-blue-500 text-white uppercase not-data-disabled:hover:bg-blue-200",
         secondary:
-          "bg-gray-600 text-white uppercase enabled:hover:bg-gray-600/75",
-        destructive: "bg-red-500 text-white uppercase enabled:hover:bg-red-200",
-        ghost: "text-blue-500 enabled:hover:text-blue-200",
-        "ghost-destructive": "text-red-500 enabled:hover:text-red-200",
-        vote: "rounded-score text-blue-200 focus-visible:ring-offset-0 focus-visible:ring-inset enabled:hover:text-blue-500 disabled:opacity-100",
+          "bg-gray-600 text-white uppercase not-data-disabled:hover:bg-gray-600/75",
+        destructive:
+          "bg-red-500 text-white uppercase not-data-disabled:hover:bg-red-200",
+        ghost: "text-blue-500 not-data-disabled:hover:text-blue-200",
+        "ghost-destructive":
+          "text-red-500 not-data-disabled:hover:text-red-200",
+        vote: "rounded-score text-blue-200 not-data-disabled:hover:text-blue-500 focus-visible:ring-offset-0 focus-visible:ring-inset data-disabled:opacity-100",
       },
       size: {
         default: "px-7.5 py-3",

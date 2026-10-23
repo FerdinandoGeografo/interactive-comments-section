@@ -14,6 +14,7 @@ interface CreateCommentFormProps {
   className?: string;
   onSubmit: (content: string) => void;
   onCancel?: () => void;
+  onDraftChange?: () => void;
 }
 
 export default function CreateCommentForm({
@@ -24,6 +25,7 @@ export default function CreateCommentForm({
   className,
   onSubmit,
   onCancel,
+  onDraftChange,
 }: CreateCommentFormProps) {
   const { currentUser } = useComments();
   const { content, setContent, canSubmit, handleSubmit } = useCommentDraft();
@@ -48,11 +50,18 @@ export default function CreateCommentForm({
         prefix={replyingTo ? mentionPrefix(replyingTo) : ""}
         value={content}
         autoFocus={autoFocus}
-        onValueChange={setContent}
+        onValueChange={(value) => {
+          setContent(value);
+          onDraftChange?.();
+        }}
         onCancel={onCancel}
       />
 
-      <Button type="submit" disabled={!canSubmit}>
+      <Button
+        type="submit"
+        disabled={!canSubmit}
+        focusableWhenDisabled={!replyingTo}
+      >
         {submitLabel}
       </Button>
     </form>
