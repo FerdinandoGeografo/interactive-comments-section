@@ -5,7 +5,7 @@ import Comment from "@/components/Comment";
 import Footer from "@/components/Footer";
 import { useComments } from "@/hooks/useComments";
 import { createId } from "@/lib/id";
-import { COMMENTS_HEADING_ID } from "@/lib/focus";
+import { COMMENTS_HEADING_ID, MAIN_COMMENT_TEXTAREA_ID } from "@/lib/focus";
 import { layoutSpring } from "@/lib/motion/transitions";
 import { entryMotion } from "@/lib/motion/variants";
 import { sortRootComments } from "@/utils/comment.utils";
@@ -52,6 +52,7 @@ export default function App() {
 
           <motion.div layout="position" transition={{ layout: layoutSpring }}>
             <CreateCommentForm
+              textareaId={MAIN_COMMENT_TEXTAREA_ID}
               label="Add a comment"
               submitLabel="send"
               onSubmit={createComment}

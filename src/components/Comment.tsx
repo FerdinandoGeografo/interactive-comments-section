@@ -1,4 +1,4 @@
-import { useRef, type Ref } from "react";
+import { useLayoutEffect, useRef, type Ref } from "react";
 import { AnimatePresence, motion, useIsPresent } from "motion/react";
 import type { CommentEntry, CommentTarget } from "@/models/comment.interface";
 
@@ -15,6 +15,7 @@ import FormReveal from "@/components/FormReveal";
 import { useCommentActions } from "@/hooks/useCommentActions";
 import { layoutSpring } from "@/lib/motion/transitions";
 import { entryMotion, swapMotion } from "@/lib/motion/variants";
+import { focusAfterDelete } from "@/lib/focus";
 
 interface CommentProps {
   entry: CommentEntry;
@@ -41,6 +42,15 @@ export default function Comment({ entry, target, ref }: CommentProps) {
   const isPresent = useIsPresent();
   const replyTriggerRef = useRef<HTMLButtonElement>(null);
   const editTriggerRef = useRef<HTMLButtonElement>(null);
+  const articleRef = useRef<HTMLElement>(null);
+  const deleteConfirmedRef = useRef(false);
+
+  useLayoutEffect(() => {
+    if (!isPresent && deleteConfirmedRef.current) {
+      deleteConfirmedRef.current = false;
+      focusAfterDelete(articleRef.current);
+    }
+  }, [isPresent]);
 
   const { content, user, score, createdAt } = entry;
   const replyingTo = entry.kind === "reply" ? entry.replyingTo : "";
@@ -60,7 +70,10 @@ export default function Comment({ entry, target, ref }: CommentProps) {
       // focus-within:z-10 keeps an open form above siblings sliding past it.
       className="relative flex flex-col gap-4 focus-within:z-10 sm:gap-5"
     >
-      <article className="grid grid-cols-[auto_1fr] grid-rows-[auto_auto_auto] items-center gap-4 rounded-lg bg-white p-4 sm:grid-cols-[40px_auto_auto] sm:grid-rows-[auto_auto] sm:items-start sm:gap-x-6 sm:gap-y-3.75 sm:p-6">
+      <article
+        ref={articleRef}
+        className="grid grid-cols-[auto_1fr] grid-rows-[auto_auto_auto] items-center gap-4 rounded-lg bg-white p-4 sm:grid-cols-[40px_auto_auto] sm:grid-rows-[auto_auto] sm:items-start sm:gap-x-6 sm:gap-y-3.75 sm:p-6"
+      >
         <CommentHeader user={user} createdAt={createdAt} isAuthor={isAuthor} />
 
         <div className="relative col-span-full sm:col-start-2">
@@ -137,7 +150,10 @@ export default function Comment({ entry, target, ref }: CommentProps) {
       <DeleteCommentDialog
         open={isDeleteOpen}
         onOpenChange={setIsDeleteOpen}
-        onConfirm={confirmDelete}
+        onConfirm={() => {
+          deleteConfirmedRef.current = true;
+          confirmDelete();
+        }}
       />
     </motion.li>
   );

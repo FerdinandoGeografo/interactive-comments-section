@@ -39,6 +39,7 @@ export default function CommentActions({
           </Button>
           <Button
             ref={editTriggerRef}
+            data-comment-action="edit"
             variant="ghost"
             size="inline"
             aria-expanded={isEditing}
@@ -53,6 +54,7 @@ export default function CommentActions({
       ) : (
         <Button
           ref={replyTriggerRef}
+          data-comment-action="reply"
           variant="ghost"
           size="inline"
           aria-expanded={isReplying}

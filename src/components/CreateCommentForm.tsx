@@ -8,6 +8,7 @@ import { mentionPrefix } from "@/utils/comment.utils";
 
 interface CreateCommentFormProps {
   label: string;
+  textareaId?: string;
   submitLabel: string;
   replyingTo?: string;
   autoFocus?: boolean;
@@ -19,6 +20,7 @@ interface CreateCommentFormProps {
 
 export default function CreateCommentForm({
   label,
+  textareaId,
   submitLabel,
   replyingTo,
   autoFocus,
@@ -44,6 +46,7 @@ export default function CreateCommentForm({
       <Avatar user={currentUser} size="large" className="sm:mt-1" />
 
       <CommentTextarea
+        id={textareaId}
         label={label}
         className="-order-1 sm:order-0 sm:flex-1"
         placeholder="Add a comment…"

@@ -9,7 +9,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { focusCommentsHeading } from "@/lib/focus";
 
 interface DeleteCommentDialogProps {
   open: boolean;
@@ -32,8 +31,6 @@ export default function DeleteCommentDialog({
 
   function handleOpenChangeComplete(isOpen: boolean) {
     if (isOpen || !isConfirmedRef.current) return;
-    isConfirmedRef.current = false;
-    focusCommentsHeading();
     onConfirm();
   }
 
