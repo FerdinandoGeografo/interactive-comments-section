@@ -7,6 +7,7 @@ import {
   type KeyboardEvent,
   type SyntheticEvent,
 } from "react";
+import { useIsPresent } from "motion/react";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import {
@@ -51,10 +52,44 @@ export default function CommentTextarea({
   const textareaId = id ?? generatedId;
   const counterId = `${textareaId}-counter`;
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const previousValueRef = useRef(value);
+  const lastAnnouncementRef = useRef("");
+  const announcementRef = useRef<HTMLParagraphElement>(null);
+  const isPresent = useIsPresent();
 
   const remaining = MAX_CONTENT_LENGTH - normalizeContent(value).length;
   const isOverLimit = remaining < 0;
   const showCounter = remaining <= COUNTER_THRESHOLD;
+  const counterMessage = showCounter
+    ? isOverLimit
+      ? `${characters(-remaining)} over the limit`
+      : `${characters(remaining)} left`
+    : "";
+
+  useEffect(() => {
+    const region = announcementRef.current;
+    if (region) region.textContent = "";
+    const changed = previousValueRef.current !== value;
+    previousValueRef.current = value;
+    if (!isPresent || !counterMessage) {
+      lastAnnouncementRef.current = "";
+      return;
+    }
+    if (!changed || lastAnnouncementRef.current === counterMessage) return;
+
+    const timer = window.setTimeout(() => {
+      const textarea = textareaRef.current;
+      if (
+        !textarea ||
+        textarea.closest("[inert]") ||
+        textarea.value !== prefix + value
+      )
+        return;
+      lastAnnouncementRef.current = counterMessage;
+      if (region) region.textContent = counterMessage;
+    }, 1000);
+    return () => window.clearTimeout(timer);
+  }, [value, prefix, counterMessage, isPresent]);
 
   // Native autofocus would leave the caret before the mention.
   useEffect(() => {
@@ -108,21 +143,22 @@ export default function CommentTextarea({
         onKeyDown={handleKeyDown}
         {...props}
       />
-      {/* Always mounted so screen readers track the live region. */}
       <p
         id={counterId}
-        aria-live="polite"
         className={cn(
           "self-end text-sm leading-5",
           !showCounter && "sr-only",
-          isOverLimit ? "text-red-500" : "text-gray-600",
+          isOverLimit ? "text-error" : "text-gray-600",
         )}
       >
-        {showCounter &&
-          (isOverLimit
-            ? `${characters(-remaining)} over the limit`
-            : `${characters(remaining)} left`)}
+        {counterMessage}
       </p>
+      <p
+        ref={announcementRef}
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+      />
     </div>
   );
 }

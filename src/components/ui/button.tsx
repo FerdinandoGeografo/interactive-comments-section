@@ -8,15 +8,15 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-blue-500 text-white uppercase not-data-disabled:hover:bg-blue-200",
+          "bg-blue-500 text-white uppercase not-data-disabled:hover:bg-blue-600",
         secondary:
-          "bg-gray-600 text-white uppercase not-data-disabled:hover:bg-gray-600/75",
+          "bg-gray-600 text-white uppercase not-data-disabled:hover:bg-gray-700",
         destructive:
-          "bg-red-500 text-white uppercase not-data-disabled:hover:bg-red-200",
-        ghost: "text-blue-500 not-data-disabled:hover:text-blue-200",
+          "bg-destructive text-white uppercase not-data-disabled:hover:bg-destructive-hover",
+        ghost: "text-blue-500 not-data-disabled:hover:text-blue-600",
         "ghost-destructive":
-          "text-red-500 not-data-disabled:hover:text-red-200",
-        vote: "rounded-score text-blue-200 not-data-disabled:hover:text-blue-500 focus-visible:ring-offset-0 focus-visible:ring-inset data-disabled:opacity-100",
+          "text-destructive not-data-disabled:hover:text-destructive-hover",
+        vote: "rounded-score text-vote-idle not-data-disabled:hover:text-blue-500 focus-visible:ring-offset-0 focus-visible:ring-inset data-disabled:text-blue-200 data-disabled:opacity-100",
       },
       size: {
         default: "px-7.5 py-3",

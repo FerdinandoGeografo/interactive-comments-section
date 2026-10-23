@@ -62,7 +62,7 @@ export default function ScoreCounter({
         animate={votes % 2 === 0 ? "even" : "odd"}
         className={cn(
           "leading-4.75 font-medium",
-          score >= 0 ? "text-blue-500" : "text-red-500",
+          score >= 0 ? "text-blue-500" : "text-score-negative",
         )}
       >
         {score}

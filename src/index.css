@@ -21,6 +21,13 @@
   --color-red-200: #ffb8bb;
   --color-red-500: #ed6368;
 
+  --color-error: #e5242a;
+  --color-destructive: #e5242a;
+  --color-destructive-hover: #c81e24;
+  --color-blue-600: #41459b;
+  --color-vote-idle: #7b7eac;
+  --color-score-negative: #d92027;
+
   --radius-score: 0.625rem;
 
   --text-badge: 0.8125rem;
