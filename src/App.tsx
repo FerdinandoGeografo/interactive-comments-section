@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { AnimatePresence, LayoutGroup, motion } from "motion/react";
 import CreateCommentForm from "@/components/CreateCommentForm";
 import Comment from "@/components/Comment";
@@ -12,15 +11,12 @@ import { sortRootComments } from "@/utils/comment.utils";
 
 export default function App() {
   const { comments, dispatch } = useComments();
-  const [submissionStatus, setSubmissionStatus] = useState("");
 
-  const createComment = (content: string) => {
+  const createComment = (content: string) =>
     dispatch({
       type: "createComment",
       payload: { id: createId(), content, createdAt: new Date().toISOString() },
     });
-    setSubmissionStatus("Comment posted");
-  };
 
   return (
     <div className="flex min-h-screen flex-col overflow-y-auto bg-gray-100 px-4 sm:px-6 md:px-8">
@@ -55,12 +51,9 @@ export default function App() {
               textareaId={MAIN_COMMENT_TEXTAREA_ID}
               label="Add a comment"
               submitLabel="send"
+              statusMessage="Comment posted"
               onSubmit={createComment}
-              onDraftChange={() => setSubmissionStatus("")}
             />
-            <p role="status" aria-atomic="true" className="sr-only">
-              {submissionStatus}
-            </p>
           </motion.div>
         </main>
 

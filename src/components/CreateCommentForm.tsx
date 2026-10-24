@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Avatar from "@/components/Avatar";
 import CommentTextarea from "@/components/CommentTextarea";
 import { Button } from "@/components/ui/button";
@@ -9,27 +10,28 @@ interface CreateCommentFormProps {
   label: string;
   textareaId?: string;
   submitLabel: string;
+  statusMessage?: string;
   replyingTo?: string;
   autoFocus?: boolean;
   className?: string;
   onSubmit: (content: string) => void;
   onCancel?: () => void;
-  onDraftChange?: () => void;
 }
 
 export default function CreateCommentForm({
   label,
   textareaId,
   submitLabel,
+  statusMessage,
   replyingTo,
   autoFocus,
   className,
   onSubmit,
   onCancel,
-  onDraftChange,
 }: CreateCommentFormProps) {
   const { currentUser } = useComments();
   const { content, setContent, canSubmit, handleSubmit } = useCommentDraft();
+  const [status, setStatus] = useState("");
 
   return (
     <form
@@ -40,6 +42,7 @@ export default function CreateCommentForm({
       onSubmit={handleSubmit((newContent) => {
         onSubmit(newContent);
         setContent("");
+        if (statusMessage) setStatus(statusMessage);
       })}
     >
       <Avatar user={currentUser} size="large" className="sm:mt-1" />
@@ -54,18 +57,22 @@ export default function CreateCommentForm({
         autoFocus={autoFocus}
         onValueChange={(value) => {
           setContent(value);
-          onDraftChange?.();
+          // Clearing lets the same message be announced again next time.
+          setStatus("");
         }}
         onCancel={onCancel}
       />
 
-      <Button
-        type="submit"
-        disabled={!canSubmit}
-        focusableWhenDisabled={!replyingTo}
-      >
+      {/* Clearing the draft disables SEND: it must keep focus meanwhile. */}
+      <Button type="submit" disabled={!canSubmit} focusableWhenDisabled>
         {submitLabel}
       </Button>
+
+      {statusMessage && (
+        <p role="status" aria-atomic="true" className="sr-only">
+          {status}
+        </p>
+      )}
     </form>
   );
 }
