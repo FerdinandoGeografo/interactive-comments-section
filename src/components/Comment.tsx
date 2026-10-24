@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, type Ref } from "react";
+import { useRef, type Ref } from "react";
 import { AnimatePresence, motion, useIsPresent } from "motion/react";
 import type { CommentEntry, CommentTarget } from "@/models/comment.interface";
 
@@ -15,7 +15,7 @@ import FormReveal from "@/components/FormReveal";
 import { useCommentActions } from "@/hooks/useCommentActions";
 import { layoutSpring } from "@/lib/motion/transitions";
 import { entryMotion, swapMotion } from "@/lib/motion/variants";
-import { focusAfterDelete } from "@/lib/focus";
+import { findFocusAfterDelete } from "@/lib/focus";
 
 interface CommentProps {
   entry: CommentEntry;
@@ -43,14 +43,6 @@ export default function Comment({ entry, target, ref }: CommentProps) {
   const replyTriggerRef = useRef<HTMLButtonElement>(null);
   const editTriggerRef = useRef<HTMLButtonElement>(null);
   const articleRef = useRef<HTMLElement>(null);
-  const deleteConfirmedRef = useRef(false);
-
-  useLayoutEffect(() => {
-    if (!isPresent && deleteConfirmedRef.current) {
-      deleteConfirmedRef.current = false;
-      focusAfterDelete(articleRef.current);
-    }
-  }, [isPresent]);
 
   const { content, user, score, createdAt } = entry;
   const replyingTo = entry.kind === "reply" ? entry.replyingTo : "";
@@ -150,10 +142,10 @@ export default function Comment({ entry, target, ref }: CommentProps) {
       <DeleteCommentDialog
         open={isDeleteOpen}
         onOpenChange={setIsDeleteOpen}
-        onConfirm={() => {
-          deleteConfirmedRef.current = true;
-          confirmDelete();
-        }}
+        getFocusAfterConfirm={() =>
+          findFocusAfterDelete(articleRef.current?.closest("li"))
+        }
+        onConfirm={confirmDelete}
       />
     </motion.li>
   );

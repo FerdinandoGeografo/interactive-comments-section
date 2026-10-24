@@ -13,12 +13,14 @@ import {
 interface DeleteCommentDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  getFocusAfterConfirm: () => HTMLElement | null;
   onConfirm: () => void;
 }
 
 export default function DeleteCommentDialog({
   open,
   onOpenChange,
+  getFocusAfterConfirm,
   onConfirm,
 }: DeleteCommentDialogProps) {
   const cancelRef = useRef<HTMLButtonElement>(null);
@@ -42,7 +44,10 @@ export default function DeleteCommentDialog({
     >
       <AlertDialogContent
         initialFocus={cancelRef}
-        finalFocus={() => !isConfirmedRef.current}
+        // The Delete button leaves with its entry, so focus moves on instead.
+        finalFocus={() =>
+          isConfirmedRef.current ? getFocusAfterConfirm() : true
+        }
       >
         <AlertDialogHeader>
           <AlertDialogTitle>Delete comment</AlertDialogTitle>

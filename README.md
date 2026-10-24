@@ -135,7 +135,13 @@ return (
 
 #### Focus after deleting
 
-The delete button disappears with its comment, so focus can't return to it. After the dialog closes and the entry starts leaving, focus moves to Reply or Edit on the next entry in the same list, or the previous one. A lone reply uses its parent comment; an empty list uses “Add a comment”. Cancel and Escape return focus to the Delete button.
+The delete button disappears with its comment, so focus can't return to it. When the deletion is confirmed, the dialog's `finalFocus` returns Reply or Edit on the next entry in the same list, or the previous one, instead of the trigger. A lone reply uses its parent comment; an empty list uses “Add a comment”. Cancel and Escape return focus to the Delete button.
+
+```tsx
+<AlertDialogContent
+  finalFocus={() => (isConfirmedRef.current ? getFocusAfterConfirm() : true)}
+/>
+```
 
 #### Feedback without breaking announcements
 
