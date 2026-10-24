@@ -2,15 +2,16 @@ import {
   useEffect,
   useId,
   useRef,
+  useState,
   type ComponentProps,
   type KeyboardEvent,
 } from "react";
-import { useIsPresent } from "motion/react";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { MAX_CONTENT_LENGTH, normalizeContent } from "@/utils/comment.utils";
 
 const COUNTER_THRESHOLD = 100;
+const ANNOUNCEMENT_DELAY = 1000;
 
 interface CommentTextareaProps extends Omit<
   ComponentProps<typeof Textarea>,
@@ -47,10 +48,6 @@ export default function CommentTextarea({
   const counterId = `${textareaId}-counter`;
   const recipientId = `${textareaId}-recipient`;
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const previousValueRef = useRef(value);
-  const lastAnnouncementRef = useRef("");
-  const announcementRef = useRef<HTMLParagraphElement>(null);
-  const isPresent = useIsPresent();
 
   const remaining = MAX_CONTENT_LENGTH - normalizeContent(value).length;
   const isOverLimit = remaining < 0;
@@ -61,26 +58,15 @@ export default function CommentTextarea({
       : `${characters(remaining)} left`
     : "";
 
+  // Announce the counter once typing pauses, not over every keystroke.
+  const [announcement, setAnnouncement] = useState(counterMessage);
   useEffect(() => {
-    const region = announcementRef.current;
-    if (region) region.textContent = "";
-    const changed = previousValueRef.current !== value;
-    previousValueRef.current = value;
-    if (!isPresent || !counterMessage) {
-      lastAnnouncementRef.current = "";
-      return;
-    }
-    if (!changed || lastAnnouncementRef.current === counterMessage) return;
-
-    const timer = window.setTimeout(() => {
-      const textarea = textareaRef.current;
-      if (!textarea || textarea.closest("[inert]") || textarea.value !== value)
-        return;
-      lastAnnouncementRef.current = counterMessage;
-      if (region) region.textContent = counterMessage;
-    }, 1000);
-    return () => window.clearTimeout(timer);
-  }, [value, counterMessage, isPresent]);
+    const timeout = setTimeout(
+      () => setAnnouncement(counterMessage),
+      ANNOUNCEMENT_DELAY,
+    );
+    return () => clearTimeout(timeout);
+  }, [counterMessage]);
 
   useEffect(() => {
     const textarea = textareaRef.current;
@@ -140,12 +126,9 @@ export default function CommentTextarea({
       >
         {counterMessage}
       </p>
-      <p
-        ref={announcementRef}
-        aria-live="polite"
-        aria-atomic="true"
-        className="sr-only"
-      />
+      <p aria-live="polite" aria-atomic="true" className="sr-only">
+        {announcement}
+      </p>
     </div>
   );
 }
