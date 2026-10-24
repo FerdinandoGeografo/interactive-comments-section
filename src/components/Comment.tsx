@@ -114,7 +114,7 @@ export default function Comment({ entry, target, ref }: CommentProps) {
         {isReplying && (
           <FormReveal key="reply-form" className="-mt-4 sm:-mt-5">
             <CreateCommentForm
-              label="Reply"
+              label={`Reply to ${user.username}`}
               submitLabel="reply"
               replyingTo={user.username}
               autoFocus

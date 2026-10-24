@@ -14,8 +14,10 @@ export default function EditCommentForm({
   onSubmit,
   onCancel,
 }: EditCommentFormProps) {
+  const replyingTo = entry.kind === "reply" ? entry.replyingTo : undefined;
   const { content, setContent, canSubmit, handleSubmit } = useCommentDraft(
     entry.content,
+    replyingTo,
   );
 
   return (
@@ -27,9 +29,9 @@ export default function EditCommentForm({
       )}
     >
       <CommentTextarea
-        label={entry.kind === "reply" ? "Edit reply" : "Edit comment"}
+        label={replyingTo ? `Edit reply to ${replyingTo}` : "Edit comment"}
         textareaClassName="pb-4"
-        replyingTo={entry.kind === "reply" ? entry.replyingTo : undefined}
+        replyingTo={replyingTo}
         value={content}
         autoFocus
         onValueChange={setContent}

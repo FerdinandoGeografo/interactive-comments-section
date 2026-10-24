@@ -30,7 +30,10 @@ export default function CreateCommentForm({
   onCancel,
 }: CreateCommentFormProps) {
   const { currentUser } = useComments();
-  const { content, setContent, canSubmit, handleSubmit } = useCommentDraft();
+  const { content, setContent, canSubmit, handleSubmit } = useCommentDraft(
+    "",
+    replyingTo,
+  );
   const [status, setStatus] = useState("");
 
   return (

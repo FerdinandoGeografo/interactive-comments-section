@@ -41,7 +41,7 @@ Users should be able to:
 This solution also makes some choices that the brief leaves open:
 
 - **Votes**: one vote per entry. Pressing the active vote removes it, the other arrow replaces it, and your own entries can't be voted on.
-- **Replies to replies** stay in the same thread. The recipient appears above the editor, outside the text you can type or select.
+- **Replies to replies** stay in the same thread. The editor starts with an `@username` mention you can edit or delete; the reply is always addressed to that user.
 - **Forms**: only one reply or edit form is open at a time. Escape closes it and focus goes back to the button that opened it.
 - **Content**: empty comments can't be sent. A counter appears in the last 100 of the 1000 allowed characters and announces changes after a pause.
 - **Deleting** a comment also removes its replies. Cancelling keeps everything as it was, including an open edit.
@@ -97,14 +97,22 @@ This solution also makes some choices that the brief leaves open:
 
 ### What I learned
 
-#### Keeping the recipient out of the editor
+#### A mention that stays plain text
 
-Reply and reply-edit forms show “Replying to @username” above the textarea and link it to the field's accessible description. The textarea value is only the comment content. Selection, Backspace, paste and undo work on that value without special prefix handling. The recipient remains in `replyingTo`, and published replies still show their mention:
+Reply and reply-edit forms start with `@username`, as in the design, and the field's label names the recipient (“Reply to amyrobson”). The mention is ordinary text, so Backspace, selection, paste and undo work without special handling. The recipient lives in `replyingTo`: before validating and saving, a leading mention is dropped, and the published reply shows it again from `replyingTo`, even if it was deleted from the editor:
 
-```tsx
-<p id={recipientId}>Replying to @{replyingTo}</p>
-<Textarea value={content} aria-describedby={`${recipientId} ${counterId}`} />
+```ts
+export function stripMention(content: string, replyingTo?: string) {
+  const text = normalizeContent(content);
+  const mention = `@${replyingTo}`;
+  if (!replyingTo || !text.startsWith(mention)) return text;
+  const rest = text.slice(mention.length);
+  if (/^[\w.-]/.test(rest)) return text;
+  return normalizeContent(rest.replace(/^[,:]/, ""));
+}
 ```
+
+The character counter uses the same function, so it counts what will actually be stored.
 
 #### Votes as a small state machine
 

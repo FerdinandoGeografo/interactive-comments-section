@@ -17,6 +17,21 @@ export function isValidContent(content: string) {
   return normalized.length > 0 && normalized.length <= MAX_CONTENT_LENGTH;
 }
 
+export function mentionPrefix(username: string) {
+  return `@${username} `;
+}
+
+// Reply editors start with the recipient's mention, but replies keep it in
+// replyingTo: a leading "@username" (and a comma or colon) is not content.
+export function stripMention(content: string, replyingTo?: string) {
+  const text = normalizeContent(content);
+  const mention = `@${replyingTo}`;
+  if (!replyingTo || !text.startsWith(mention)) return text;
+  const rest = text.slice(mention.length);
+  if (/^[\w.-]/.test(rest)) return text;
+  return normalizeContent(rest.replace(/^[,:]/, ""));
+}
+
 export function getThreadId(target: CommentTarget) {
   return target.kind === "comment" ? target.id : target.threadId;
 }

@@ -8,7 +8,7 @@ import {
 } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { MAX_CONTENT_LENGTH, normalizeContent } from "@/utils/comment.utils";
+import { MAX_CONTENT_LENGTH, stripMention } from "@/utils/comment.utils";
 
 const COUNTER_THRESHOLD = 100;
 const ANNOUNCEMENT_DELAY = 1000;
@@ -20,6 +20,7 @@ interface CommentTextareaProps extends Omit<
   label: string;
   value: string;
   onValueChange: (content: string) => void;
+  // Only for counting: the leading mention is not stored as content.
   replyingTo?: string;
   onCancel?: () => void;
   textareaClassName?: string;
@@ -40,16 +41,14 @@ export default function CommentTextarea({
   autoFocus,
   className,
   textareaClassName,
-  "aria-describedby": describedBy,
   ...props
 }: CommentTextareaProps) {
   const generatedId = useId();
   const textareaId = id ?? generatedId;
   const counterId = `${textareaId}-counter`;
-  const recipientId = `${textareaId}-recipient`;
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const remaining = MAX_CONTENT_LENGTH - normalizeContent(value).length;
+  const remaining = MAX_CONTENT_LENGTH - stripMention(value, replyingTo).length;
   const isOverLimit = remaining < 0;
   const showCounter = remaining <= COUNTER_THRESHOLD;
   const counterMessage = showCounter
@@ -68,6 +67,7 @@ export default function CommentTextarea({
     return () => clearTimeout(timeout);
   }, [counterMessage]);
 
+  // Native autofocus would leave the caret before the mention.
   useEffect(() => {
     const textarea = textareaRef.current;
     if (!autoFocus || !textarea) return;
@@ -89,15 +89,6 @@ export default function CommentTextarea({
       <label htmlFor={textareaId} className="sr-only">
         {label}
       </label>
-      {replyingTo && (
-        <p
-          id={recipientId}
-          className="text-sm leading-5 wrap-anywhere text-gray-600"
-        >
-          Replying to{" "}
-          <span className="font-medium text-blue-500">@{replyingTo}</span>
-        </p>
-      )}
       <Textarea
         ref={textareaRef}
         id={textareaId}
@@ -105,13 +96,7 @@ export default function CommentTextarea({
         className={textareaClassName}
         value={value}
         aria-invalid={isOverLimit || undefined}
-        aria-describedby={[
-          replyingTo ? recipientId : undefined,
-          counterId,
-          describedBy,
-        ]
-          .filter(Boolean)
-          .join(" ")}
+        aria-describedby={counterId}
         onChange={(event) => onValueChange(event.target.value)}
         onKeyDown={handleKeyDown}
         {...props}
